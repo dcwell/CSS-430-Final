@@ -49,6 +49,7 @@ public class Kernel
    private static Scheduler scheduler;
    private static Disk disk;
    private static Cache cache;
+   private static FileSystem fs;
 
    // Synchronized Queues
    private static SyncQueue waitQueue;  // for threads to wait for their child
@@ -151,8 +152,7 @@ public class Kernel
                         System.out.println("threaOS: caused read errors");
                         return ERROR;
                   }
-                  // return FileSystem.read( param, byte args[] );
-                  return ERROR;
+                  return FileSystem.read( param, byte args[] );
                case WRITE:
                   switch (param) {
                      case STDIN:
