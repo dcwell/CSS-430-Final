@@ -15,6 +15,14 @@ public class SysLib {
 	return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
 				 Kernel.BOOT, 0, null );
     }
+    public static int close( ) {
+        return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
+                Kernel.BOOT, 0, null );
+    }
+    public static int close(int i ) {
+        return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
+                Kernel.BOOT, 0, null );
+    }
 
     public static int exit( ) {
 	return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
