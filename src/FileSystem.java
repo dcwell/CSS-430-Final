@@ -1,3 +1,5 @@
+import java.util.*;
+
 public class FileSystem {
     private SuperBlock superBlock;
     private Directory directory;
@@ -18,40 +20,48 @@ public class FileSystem {
         close(dirEnt);
     }
 
-    void sync() {
+    public void sync() {
 
     }
-    boolean format(int files) {
 
+    public boolean format(int files) {
+        return false;
     }
-    FileTableEntry open(String filename, String mode) {
 
+    public FileTableEntry open(String filename, String mode) {
+        return new FileTableEntry(new Inode(), (short)1, "bar");
     }
-    boolean close(FileTableEntry ftEnt) {
 
+    public boolean close(FileTableEntry ftEnt) {
+        return false;
     }
-    int fsize(FileTableEntry ftEnt) {
 
+    public int fsize(FileTableEntry ftEnt) {
+        return -1;
     }
-    int read(FileTableEntry ftEnt, byte[] buffer) {
 
+    public int read(FileTableEntry ftEnt, byte[] buffer) {
+        return -1;
     }
-    int write(FileTableEntry ftEnt, byte[] buffer) {
 
+    public int write(FileTableEntry ftEnt, byte[] buffer) {
+        return -1;
     }
+
     private boolean deallocateAllBlocks(FileTableEntry ftEnt) {
-
+        return false;
     }
-    boolean delete(String filename) {
 
+    public boolean delete(String filename) {
+        return false;
     }
 
     private final int SEEK_SET = 0;
     private final int SEEK_CUR = 1;
     private final int SEEK_END = 2;
 
-    int seek(FileTableEntry ftEnt, int offset, int whence) {
-
+    public int seek(FileTableEntry ftEnt, int offset, int whence) {
+        return -1;
     }
 
 }
