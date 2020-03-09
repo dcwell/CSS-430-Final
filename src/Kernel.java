@@ -156,7 +156,9 @@ public class Kernel
                         System.out.println("threaOS: caused read errors");
                         return ERROR;
                   }
-                  //return FileSystem.read( param, byte args[] );
+                  return fs.read( param, byte args[] );
+
+
                case WRITE:
                   switch (param) {
                      case STDIN:
