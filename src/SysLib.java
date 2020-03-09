@@ -125,29 +125,37 @@ public class SysLib {
                 Kernel.CLOSE, 0, null );
     }
 
-    public static int close(int i) {
+    public static int close(int fd) {
         return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
-                Kernel.CLOSE, i, null );
+                Kernel.CLOSE, fd, null );
     }
 
-    public static int format(int i) {
+    public static int format(int files) {
         return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
-                Kernel.FORMAT, i, null );
+                Kernel.FORMAT, files, null );
     }
 
-    public static int open(String s, String r) {
+    public static int open(String fileName, String mode) {
+        String[] args = new String[2];
+        args[0] = fileName;
+        args[1] = mode;
         return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
-                Kernel.OPEN, 0, null );
+                Kernel.OPEN, 0, args);
     }
 
-    public static int read(int i, byte[] buf ) {
+    public static int read(int fd, byte[] buf) {
         return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
-                Kernel.READ, i, null );
+                Kernel.READ, fd, buf );
     }
 
-    public static int write(int i, byte[] buf) {
+    public static int write(int fd, byte[] buf) {
         return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
-                Kernel.WRITE, i, null );
+                Kernel.WRITE, fd, buf );
+    }
+
+    public static int seek(int fd, int offset, int whence) {
+        return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
+                Kernel.WRITE, fd, null );
     }
 
 }

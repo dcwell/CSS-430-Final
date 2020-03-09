@@ -49,7 +49,7 @@ public class Kernel
    private static Scheduler scheduler;
    private static Disk disk;
    private static Cache cache;
-   private static FileSystem fs;
+   private static FileSystem fs; //ADDED FILE SYSTEM
 
    // Synchronized Queues
    private static SyncQueue waitQueue;  // for threads to wait for their child
@@ -83,6 +83,9 @@ public class Kernel
                   // instantiate synchronized queues
                   ioQueue = new SyncQueue();
                   waitQueue = new SyncQueue(scheduler.getMaxThreads());
+
+                  fs = new FileSystem(1000);
+
                   return OK;
                case EXEC:
                   return sysExec((String[]) args);
@@ -161,12 +164,18 @@ public class Kernel
                         return ERROR;
                      case STDOUT:
                         System.out.print((String) args);
-                        break;
+                        return OK;
                      case STDERR:
                         System.err.print((String) args);
-                        break;
+                        return OK;
                   }
-                  return OK;
+                  if((myTcb = scheduler.getMyTcb()) != null) {
+                     FileTableEntry ftEnt = myTcb.getFtEnt(param);
+                     if(ftEnt != null) {
+                        return fs.write(ftEnt, (byte[])args);
+                     }
+                  }
+                  return ERROR;
                case CREAD:   // to be implemented in assignment 4
                   return cache.read(param, (byte[]) args) ? OK : ERROR;
                case CWRITE:  // to be implemented in assignment 4
