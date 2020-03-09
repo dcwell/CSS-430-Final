@@ -148,11 +148,12 @@ public class Kernel
                            return ERROR;
                         }
                      case STDOUT:
+                        return OK;
                      case STDERR:
                         System.out.println("threaOS: caused read errors");
                         return ERROR;
                   }
-                  return FileSystem.read( param, byte args[] );
+                  //return FileSystem.read( param, byte args[] );
                case WRITE:
                   switch (param) {
                      case STDIN:
@@ -178,7 +179,7 @@ public class Kernel
                   return OK;
                case OPEN:    // to be implemented in project
                   if ((myTcb = scheduler.getMyTcb()) != null) {
-                     String[] s -(String[]) args;
+                     String[] s = (String[]) args;
                      return myTcb.getFd(fs.open(s[0], s[1]));
                   } else
                      return ERROR;
@@ -195,11 +196,11 @@ public class Kernel
 
                case SIZE:    // to be implemented in project
                   if((myTcb = scheduler.getMyTcb()) != null) {
-                     FileTableEntry ftEnt = myTcb.getMyTcb()) != null);
+                     FileTableEntry ftEnt = myTcb.getFtEnt(param);
                      if(ftEnt != null)
                         return fs.fsize(ftEnt);
                   }
-                     return ERROR;
+                  return ERROR;
                case SEEK:    // to be implemented in project
                   if((myTcb = scheduler.getMyTcb()) != null) {
                      int[] seekArgs = (int[]) args;
@@ -208,7 +209,6 @@ public class Kernel
                         return fs.seek(ftEnt, seekArgs[0], seekArgs[1]);
                   }
                   return ERROR;
-                  }
                case FORMAT:  // to be implemented in project
                   return (fs.format(param) == true) ? OK : ERROR;
                case DELETE:  // to be implemented in project
