@@ -1,0 +1,161 @@
+**************************************
+File System Code
+**************************************
+
+import java.util.*;
+
+public class FileSystem {
+    private SuperBlock superBlock;
+    private Directory directory;
+    private FileTable fileTable;
+
+    public FileSystem(int diskBlocks) {
+        superBlock = new SuperBlock(diskBlocks);
+        directory = new Directory(superBlock.inodeBlocks);
+        fileTable = new FileTable(directory);
+
+        FileTableEntry dirEnt = open("/", "r");
+        int dirSize = fsize(dirEnt);
+        if(dirSize > 0) {
+            byte[] dirData = new byte[dirSize];
+            read(dirEnt, dirData);
+            directory.bytes2directory(dirData);
+        }
+        close(dirEnt);
+    }
+
+    public void sync() {
+
+    }
+
+    public boolean format(int files) {
+        return false;
+    }
+
+    public FileTableEntry open(String filename, String mode) {
+        return new FileTableEntry(new Inode(), (short)1, "bar");
+    }
+
+    public boolean close(FileTableEntry ftEnt) {
+        return false;
+    }
+
+    public int fsize(FileTableEntry ftEnt) {
+        return -1;
+    }
+
+    public int read(FileTableEntry ftEnt, byte[] buffer) {
+        return -1;
+    }
+
+    public int write(FileTableEntry ftEnt, byte[] buffer) {
+        return -1;
+    }
+
+    private boolean deallocateAllBlocks(FileTableEntry ftEnt) {
+        return false;
+    }
+
+    public boolean delete(String filename) {
+        return false;
+    }
+
+    private final int SEEK_SET = 0;
+    private final int SEEK_CUR = 1;
+    private final int SEEK_END = 2;
+
+    public int seek(FileTableEntry ftEnt, int offset, int whence) {
+        return -1;
+    }
+
+}
+
+**********************************************
+Directory class code
+**********************************************
+public class Directory {
+    private static int maxChars = 30;
+
+    private int fsize[];
+    private char fnames[][];
+
+    public Directory(int maxInumber) {
+        fsize = new int[maxInumber];
+        for(int i = 0; i < maxInumber; i++) {
+            fsize[i] = 0;
+        }
+        fnames = new char[maxInumber][maxChars];
+        String root = "/";
+        fsize[0] = root.length();
+        root.getChars(0, fsize[0], fnames[0],0);
+    }
+
+    public int bytes2directory(byte data[]) {
+        //COMMENTS IN THE SLIDES
+        return -1;
+    }
+
+    public byte[] directory2bytes() {
+        //COMMENTS IN THE SLIDES
+        return new byte[1];
+    }
+}
+
+************************************************
+File Table class code
+************************************************
+import java.util.*;
+
+public class FileTable {
+    private Vector table;
+    private Directory dir;
+
+    public FileTable(Directory directory) {
+        table = new Vector();
+        dir = directory;
+    }
+
+    public synchronized FileTableEntry falloc(String filename, String mode) {
+        //BUNCH OF COMMENTS IN SLIDES
+        return new FileTableEntry(new Inode(), (short)1, "foo");
+    }
+
+    public synchronized boolean ffree(FileTableEntry e) {
+        //BUNCH OF COMMENTS IN SILDES
+        return false;
+    }
+
+    public synchronized boolean fempty() {
+        return table.isEmpty();
+    }
+
+
+}
+
+**********************************************
+File table entry class code
+**********************************************
+public class FileTableEntry {  // Each table entry should have
+    public int seekPtr;        //    a file seek pointer
+    public final Inode inode;  //    a reference to an inode
+    public final short iNumber;//    this inode number
+    public int count;          //    a count to maintain #threads sharing this
+    public final String mode;  //    "r", "w", "w+", or "a"
+
+    public FileTableEntry(Inode i, short inumber, String m) {
+        seekPtr = 0;           // the seek pointer is set to the file top.
+        inode = i;
+        iNumber = inumber;
+        count = 1;           // at least one thread is using this entry.
+        mode = m;            // once file access mode is set, it never changes.
+
+        if (mode.compareTo("a") == 0)
+            seekPtr = inode.length;
+    }
+}
+
+
+
+
+
+

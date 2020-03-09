@@ -11,16 +11,6 @@ public class SysLib {
 				 Kernel.WAIT, 0, null );
     }
 
-    public static int close( ) {
-        return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
-                Kernel.WAIT, 0, null );
-    }
-
-    public static int close(int i) {
-        return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
-                Kernel.WAIT, 0, null );
-    }
-
     public static int boot( ) {
 	return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
 				 Kernel.BOOT, 0, null );
@@ -125,4 +115,39 @@ public class SysLib {
 	        ((b[offset+2] & 0xff) << 8) + (b[offset+3] & 0xff);
 	return n;
     }
+
+    /****************************************************
+     * HERES THE CODE ADDED FOR PROJ 5
+     * *************************************************
+     */
+    public static int close( ) {
+        return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
+                Kernel.CLOSE, 0, null );
+    }
+
+    public static int close(int i) {
+        return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
+                Kernel.CLOSE, i, null );
+    }
+
+    public static int format(int i) {
+        return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
+                Kernel.FORMAT, i, null );
+    }
+
+    public static int open(String s, String r) {
+        return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
+                Kernel.OPEN, 0, null );
+    }
+
+    public static int read(int i, byte[] buf ) {
+        return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
+                Kernel.READ, i, null );
+    }
+
+    public static int write(int i, byte[] buf) {
+        return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
+                Kernel.WRITE, i, null );
+    }
+
 }
