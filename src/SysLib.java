@@ -152,8 +152,8 @@ public class SysLib {
     }
 
     public static int seek(int fd, int offset, int whence) {
+        int[] args = new int[]{fd,offset,whence};
         return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
-                Kernel.WRITE, fd, null );
+                Kernel.SEEK, 0, args);
     }
-
 }
