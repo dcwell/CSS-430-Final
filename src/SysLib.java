@@ -80,6 +80,10 @@ public class SysLib {
         return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
 				 Kernel.CSYNC, 0, null );
     }
+    /****************************************************
+     * Heres The code given to us
+     * *************************************************
+     */
 
     public static String[] stringToArgs( String s ) {
 	StringTokenizer token = new StringTokenizer( s," " );
@@ -120,10 +124,6 @@ public class SysLib {
      * HERES THE CODE ADDED FOR PROJ 5
      * *************************************************
      */
-    public static int close( ) {
-        return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
-                Kernel.CLOSE, 0, null );
-    }
 
     public static int close(int fd) {
         return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
@@ -152,8 +152,16 @@ public class SysLib {
     }
 
     public static int seek(int fd, int offset, int whence) {
-        int[] args = new int[]{fd,offset,whence};
+        int[] args = new int[]{offset,whence};
         return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
-                Kernel.SEEK, 0, args);
+                Kernel.SEEK, fd, args);
+    }
+    public static int delete(String fileName) {
+        return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
+                Kernel.DELETE, 0, fileName);
+    }
+    public static int fsize(int fd) {
+        return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
+                Kernel.SIZE, fd, null);
     }
 }

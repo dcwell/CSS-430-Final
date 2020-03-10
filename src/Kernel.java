@@ -179,14 +179,14 @@ public class Kernel {
                                 return fs.write(ftEnt, (byte[]) args);
                         }
                         return ERROR;
-                    case CREAD:   // to be implemented in assignment 4
+                    case CREAD:
                         return cache.read(param, (byte[]) args) ? OK : ERROR;
-                    case CWRITE:  // to be implemented in assignment 4
+                    case CWRITE:
                         return cache.write(param, (byte[]) args) ? OK : ERROR;
-                    case CSYNC:   // to be implemented in assignment 4
+                    case CSYNC:
                         cache.sync();
                         return OK;
-                    case CFLUSH:  // to be implemented in assignment 4
+                    case CFLUSH:
                         cache.flush();
                         return OK;
                     case OPEN:
@@ -195,24 +195,24 @@ public class Kernel {
                             return myTcb.getFd(fs.open(s[0], s[1]));
                         } else
                             return ERROR;
-                    case CLOSE:   // to be implemented in project
+                    case CLOSE:
                         if ((myTcb = scheduler.getMyTcb()) != null) {
                             FileTableEntry ftEnt = myTcb.getFtEnt(param);
-                            if (myTcb.returnFd(param) != ftEnt)
-                                return ERROR;
                             if (ftEnt == null || fs.close(ftEnt) == false)
+                                return ERROR;
+                            if (myTcb.returnFd(param) != ftEnt)
                                 return ERROR;
                             return OK;
                         }
                         return ERROR;
-                    case SIZE:    // to be implemented in project
+                    case SIZE:
                         if ((myTcb = scheduler.getMyTcb()) != null) {
                             FileTableEntry ftEnt = myTcb.getFtEnt(param);
                             if (ftEnt != null)
                                 return fs.fsize(ftEnt);
                         }
                         return ERROR;
-                    case SEEK:    // to be implemented in project
+                    case SEEK:
                         if ((myTcb = scheduler.getMyTcb()) != null) {
                             int[] seekArgs = (int[]) args;
                             FileTableEntry ftEnt = myTcb.getFtEnt(param);
@@ -220,10 +220,10 @@ public class Kernel {
                                 return fs.seek(ftEnt, seekArgs[0], seekArgs[1]);
                         }
                         return ERROR;
-                    case FORMAT:  // to be implemented in project
+                    case FORMAT:
                         return (fs.format(param) == true) ? OK : ERROR;
-                    case DELETE:  // to be implemented in project
-                        return (fs.delete((String) args) == true) ? OK : ERROR;
+                    case DELETE:
+                        return (fs.delete( (String)args) == true) ? OK : ERROR;
                 }
                 return ERROR;
             case INTERRUPT_DISK: // Disk interrupts
@@ -256,10 +256,11 @@ public class Kernel {
                 String thrArgs[] = new String[args.length - 1];
                 for (int i = 1; i < args.length; i++)
                     thrArgs[i - 1] = args[i];
-                Object[] constructorArgs = new Object[]{thrArgs};
+                Object[] constructorArgs = new Object[] {thrArgs};
 
                 // locate this class object's constructors
-                Constructor thrConst = thrClass.getConstructor(new Class[]{String[].class});
+                Constructor thrConst
+                        = thrClass.getConstructor(new Class[] {String[].class} );
 
                 // instantiate this class object by calling this constructor
                 // with arguments
