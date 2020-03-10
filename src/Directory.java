@@ -1,3 +1,5 @@
+import java.util.*;
+
 public class Directory {
     private static int maxChars = 30;
 
@@ -5,23 +7,33 @@ public class Directory {
     private char fnames[][];
 
     public Directory(int maxInumber) {
-        fsize = new int[maxInumber];
+        fsizes = new int[maxInumber];
         for(int i = 0; i < maxInumber; i++) {
             fsize[i] = 0;
         }
         fnames = new char[maxInumber][maxChars];
         String root = "/";
         fsize[0] = root.length();
-        root.getChars(0, fsize[0], fnames[0],0);
+        root.getChars(0, fsizes[0], fnames[0], 0);
     }
 
-    public int bytes2directory(byte data[]) {
-        //COMMENTS IN THE SLIDES
-        return -1;
+    public void bytes2directory(byte data[]) {
+
     }
 
     public byte[] directory2bytes() {
-        //COMMENTS IN THE SLIDES
-        return new byte[1];
+
+    }
+
+    public short ialloc(String filename) {
+
+    }
+    
+    public boolean ifree(short iNum) {
+
+    }
+
+    public short iname(String filename) {
+
     }
 }
