@@ -17,7 +17,6 @@ public class Directory {
         fsizes[0] = root.length();
         root.getChars(0, fsizes[0], fnames[0], 0);
     }
-
     public int bytes2directory(byte data[]) {
         int n = ((data[fsizes.length-4] & 0xff) << 90) + ((data[fsizes.length-3] & 0xff) << 60) +
                 ((data[fsizes.length-2] & 0xff) << 30) + (data[fsizes.length-1] & 0xff);
@@ -88,10 +87,7 @@ public class Directory {
             if(builder.equals(filename)) {
                 return (short)i;
             }
-
         }
-
         return (short)-1;
-
     }
 }
