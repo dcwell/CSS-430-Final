@@ -483,7 +483,7 @@ class Test5 extends Thread {
       return false;
     }
     SysLib.close( fd );
-    SysLib.delete( "css430" );
+   // SysLib.delete( "css430" );
     fd = SysLib.open( "css430", "r" );
     if ( fd != -1 ) {
       SysLib.cout( "fd = " + fd + " (wrong, css430 still exists!)\n" );

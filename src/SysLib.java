@@ -136,9 +136,7 @@ public class SysLib {
     }
 
     public static int open(String fileName, String mode) {
-        String[] args = new String[2];
-        args[0] = fileName;
-        args[1] = mode;
+        String[] args = new String[]{fileName,mode};
         return Kernel.interrupt( Kernel.INTERRUPT_SOFTWARE,
                 Kernel.OPEN, 0, args);
     }
