@@ -2,6 +2,7 @@ import java.util.*;
 
 public class Directory {
     private static int maxChars = 30;
+    private static int BLOCK_SIZE = 4;
 
 
     private int fsizes[];
@@ -16,8 +17,16 @@ public class Directory {
         String root = "/";
         fsizes[0] = root.length();
         root.getChars(0, fsizes[0], fnames[0], 0);
+
     }
     public int bytes2directory(byte data[]) {
+        int offset = 0; //create an offset for each block
+        for(int position = 0; position < fsizes.length; position++) //loop through the entire file sizes array
+        {
+            fsizes[position] = SysLib.bytes2int(data,offset); //using syslib to get the
+            offset += BLOCK_SIZE //need to offset by the next entire block
+        }
+        for(int position )
         int n = ((data[fsizes.length-4] & 0xff) << 90) + ((data[fsizes.length-3] & 0xff) << 60) +
                 ((data[fsizes.length-2] & 0xff) << 30) + (data[fsizes.length-1] & 0xff);
         return n;
@@ -66,14 +75,13 @@ public class Directory {
         fsizes[iNum] = 0;
         return true;
     }
-
     /*
             * Method returns the inumber corresponding to the filename passed into the func.
             *
             * @param filename filename to search for in directory.
             * @return the inumber corresponding to the file in the directory.
      */
-    public short iname(String filename) {
+    public short namei(String filename) {
         // returns the inumber corresponding to this filename
 
         for(int i = 0; i < fnames.length; i++) {
