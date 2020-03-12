@@ -1,13 +1,27 @@
 import java.util.*;
 
+/**
+ * @authors Denali Cornwell & Jayden Stipek
+ *
+ * This class is the Directory class that will represent a directory in a Unix-Like file system.
+ * It will be able to store a finite amount of files, with finite sized names. It will use 2 arrays, one to
+ * be able to represent the legths of each filename, and one 2D array to be able to store the actual names themselves.
+ */
 public class Directory {
     private static int MAX_CHARS = 30;
     private static int BLOCK_SIZE = 4;
 
 
+    //Lengths of the filenames.
     private int fsizes[];
+    //The actual file names themselves.
     private char fnames[][];
 
+    /**
+     * The provided constructor from the slides.
+     *
+     * @param maxInumber Maximum amount of files able to be in the directory.
+     */
     public Directory(int maxInumber) {
         fsizes = new int[maxInumber];
         for (int i = 0; i < maxInumber; i++) {
@@ -19,6 +33,7 @@ public class Directory {
         root.getChars(0, fsizes[0], fnames[0], 0);
 
     }
+
     /**
      When needing to relaunch computer the directory gets turned from bytes which it has been stored and
      is restructured into a proper directory.
@@ -130,16 +145,6 @@ public class Directory {
             String tempString = new String(fnames[i],0, fsizes[i]);
             if(filename.equals(tempString))
                 return (short)i;
-//
-//            StringBuilder builder = new StringBuilder();
-//
-//            for (int j = 0; j < fnames[i].length; j++) {
-//                builder.append(fnames[i][j]);
-//            }
-//
-//            if ((builder.toString()).equals(filename)) {
-//                return (short) i;
-//            }
         }
         return (short) -1;
     }
