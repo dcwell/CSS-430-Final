@@ -63,11 +63,22 @@ public class Directory {
         return data;
     }
 
+    /**
+     * Allocatess an Inumber to the first open slot
+     * @param filename
+     * @return the postion at which you are allocating the new file (-1 if no spots available)
+     */
+
     public short ialloc(String filename) {
         for (int i = 0; i < fsizes.length; i++) {
-            if (fnames[i][i] == (short) 0) {
-                fnames[i] = new char[filename.length()];
-                return (short) i;
+            if(fsizes[i] == 0)
+            {
+             fsizes[i] = Math.min(MAX_CHARS, filename.length());
+             filename.getChars(0,fsizes[i],fnames[i],0);
+//                for(int j = 0; j < filename.length(); j++) {
+//                    fnames[i][j] = filename.charAt(j);
+//                }
+                return (short)i;
             }
         }
         return -1;
