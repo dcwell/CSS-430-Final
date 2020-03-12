@@ -8,6 +8,7 @@ public class SuperBlock {
     public int freeList;
 
     public SuperBlock(int i) {
+        this.totalBlocks =
 
     }
 
