@@ -27,12 +27,16 @@ public class Directory {
      */
 
     public void bytes2directory(byte data[]) {
+        if(data == null || data.length == 0)
+            return;
+
         int offset = 0; //create an offset for each block
         for(int position = 0; position < fsizes.length; position++) //loop through the entire file sizes array
         {
             fsizes[position] = SysLib.bytes2int(data,offset); //using syslib to get the
             offset += BLOCK_SIZE; //need to offset by the next entire block
         }
+        //MAX_CHARs * = 60 bytes
         for(int position = 0; position < fnames.length; position++ ) {
             String fname = new String(data, offset, (MAX_CHARS) * 2);
             fname.getChars(0, fsizes[position], fnames[position], 0);
@@ -49,10 +53,13 @@ public class Directory {
     public byte[] directory2bytes() {
         int offset = 0;
         byte[] data = new byte[(fsizes.length * 4) + fnames.length * MAX_CHARS * 2];
+        //done with file size
         for(int position = 0; position < fnames.length; position++ ) {
+
             SysLib.int2bytes(fsizes[position],data, offset);
             offset += BLOCK_SIZE;
         }
+        //Move on to file name variable
         for(int position = 0; position < fnames.length; position++)
         {
             String tempString = new String(fnames[position],0,fsizes[position]);
@@ -73,15 +80,13 @@ public class Directory {
         for (int i = 0; i < fsizes.length; i++) {
             if(fsizes[i] == 0)
             {
-             fsizes[i] = Math.min(MAX_CHARS, filename.length());
-             filename.getChars(0,fsizes[i],fnames[i],0);
-//                for(int j = 0; j < filename.length(); j++) {
-//                    fnames[i][j] = filename.charAt(j);
-//                }
+                //cases where file name is longer or super short
+                 fsizes[i] = Math.min(MAX_CHARS, filename.length());
+                filename.getChars(0,fsizes[i],fnames[i],0);
                 return (short)i;
             }
         }
-        return -1;
+        return (short)-1;
     }
 
     /**
@@ -101,8 +106,8 @@ public class Directory {
         }
 
         //remove the filename from the filenames in the directory
-        for (int i = 0; i < fnames[iNum].length; i++) {
-            fnames[iNum][i] = Character.MIN_VALUE;
+        for (int i = 0; i < MAX_CHARS; i++) {
+            fnames[iNum][i] = 0;
         }
 
         //Set the filesize for the iNum to 0 to illustrate its deleted.
@@ -120,17 +125,21 @@ public class Directory {
     public short namei(String filename) {
         // returns the inumber corresponding to this filename
 
-        for (int i = 0; i < fnames.length; i++) {
+        for (int i = 0; i < fsizes.length; i++) {
 
-            StringBuilder builder = new StringBuilder();
-
-            for (int j = 0; j < fnames[i].length; j++) {
-                builder.append(fnames[i][j]);
-            }
-
-            if (builder.equals(filename)) {
-                return (short) i;
-            }
+            String tempString = new String(fnames[i],0, fsizes[i]);
+            if(filename.equals(tempString))
+                return (short)i;
+//
+//            StringBuilder builder = new StringBuilder();
+//
+//            for (int j = 0; j < fnames[i].length; j++) {
+//                builder.append(fnames[i][j]);
+//            }
+//
+//            if ((builder.toString()).equals(filename)) {
+//                return (short) i;
+//            }
         }
         return (short) -1;
     }
