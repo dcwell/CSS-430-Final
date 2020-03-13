@@ -44,7 +44,7 @@ public class SuperBlock {
     }
 
     /**
-     *
+     *uses format(int nodes) for simplicity
      */
 
     public void format() {
@@ -52,10 +52,9 @@ public class SuperBlock {
     }
 
     /**
-     *
+     * 
      * @param nodes
      */
-
     public void format(int nodes) {
         SysLib.cout("\n*************** EXECUTING FORMAT ****************\n");
         for(short i = 0; i < nodes; i++) {
@@ -72,8 +71,8 @@ public class SuperBlock {
     }
 
     /**
-     *
-     * @return
+     *Returns the first free block
+     * @return block ptr
      */
 
     public int getFreeBlock() {
@@ -89,23 +88,18 @@ public class SuperBlock {
 
     /**
      * Enqueues a given block to the beginning of the free list
-     * @param i index of block
+     * @param blockNumber index of block
      * @return
      */
 
-    public boolean returnBlock(int i) {
-
-        if(i > 0) {
-
+    public boolean returnBlock(int blockNumber) {
+        if(blockNumber >= 0) {
             byte[] blankBlock = new byte[Disk.blockSize];
-            SysLib.rawwrite(i, blankBlock);
+            SysLib.rawwrite(blockNumber, blankBlock);
             SysLib.int2bytes(freeList, blankBlock, 0);
             SysLib.rawwrite(freeList, blankBlock);
-            freeList = i;
-
-
+            freeList = blockNumber;
             return true;
-
         }
         return false;
     }
