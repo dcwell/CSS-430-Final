@@ -21,20 +21,41 @@ public class SuperBlock {
         else {
             //need to format disk
             totalBlocks = diskSize;
-            format(defaultInodeBlocks);
+            format();
         }
     }
 
     public void sync() {
-
+        byte[] sendToDisk = new byte[Disk.blockSize];
+        SysLib.int2bytes(totalBlocks, sendToDisk, 0);
+        SysLib.int2bytes(inodeBlocks, sendToDisk, 4);
+        SysLib.int2bytes(freeList, sendToDisk, 8);
+        SysLib.rawwrite(0, sendToDisk);
     }
 
     public void format() {
 
+        for(int i = 0; i < defaultInodeBlocks; i++) {
+            Inode blankNode = new Inode();
+        }
+
+        for(i = freeList; i < defaultInodeBlocks; i++) {
+            byte[] blankData = new byte[Disk.blockSize];
+            SysLib.int2bytes(i + 1, blankData, 0);
+            SysLib.rawwrite(i, blankData);
+        }
+
     }
 
-    public void format(int i) {
-
+    public void format(int nodes) {
+        for(int i = 0; i < nodes; i++) {
+            Inode blankNode = new Inode();
+        }
+        for(i = freeList; i < defaultInodeBlocks; i++) {
+            byte[] blankData = new byte[Disk.blockSize];
+            SysLib.int2bytes(i + 1, blankData, 0);
+            SysLib.rawwrite(i, blankData);
+        }
     }
 
     public int getFreeBlock() {
