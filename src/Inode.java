@@ -59,6 +59,11 @@ public class Inode {
         SysLib.rawwrite(iNumber,data);
     }
 
+
+    /**
+     * find the Index Block
+     * @return Index Block
+     */
     public int findIndexBlock() {
         return -1;
     }
