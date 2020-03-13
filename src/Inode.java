@@ -68,12 +68,18 @@ public class Inode {
         return indirect;
     }
 
-    public boolean registerIndexBlock(short i){
-        return false;
+    public boolean registerIndexBlock(short i) {
+        for(int i = 0; i < directSize; i++) {
+            direct[i] = -1;
+        }
+        indirect = -1;
     }
 
-    public int findTargetBlock(int i) {
-        return -1;
+    public int findTargetBlock(int iNumber) {
+        if(block < 0 )
+            return -1;
+        else
+            return (iNumber % 16) * 32;
     }
 
     public int registerTargetBlock(int i, short i1) {
