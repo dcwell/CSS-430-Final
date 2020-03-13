@@ -26,11 +26,11 @@ public class SuperBlock {
     }
 
     public void sync() {
-        byte[] sendToDisk = new byte[Disk.blockSize];
-        SysLib.int2bytes(totalBlocks, sendToDisk, 0);
-        SysLib.int2bytes(inodeBlocks, sendToDisk, 4);
-        SysLib.int2bytes(freeList, sendToDisk, 8);
-        SysLib.rawwrite(0, sendToDisk);
+        byte [] superBlock = new byte[Disk.blockSize];
+        SysLib.int2bytes(totalBlocks, superBlock, 0);
+        SysLib.int2bytes(inodeBlocks, superBlock, 4);
+        SysLib.int2bytes(freeList, superBlock, 8);
+        SysLib.rawwrite(0,superBlock);
     }
 
     public void format() {
@@ -44,6 +44,8 @@ public class SuperBlock {
             SysLib.int2bytes(i + 1, blankData, 0);
             SysLib.rawwrite(i, blankData);
         }
+
+    public void format(int totalInodes) {
 
     }
 
@@ -59,7 +61,7 @@ public class SuperBlock {
     }
 
     public int getFreeBlock() {
-        return -1;
+        return freeList++;
     }
 
     public boolean returnBlock(int i) {
