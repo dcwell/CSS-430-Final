@@ -60,6 +60,7 @@ public class SuperBlock {
             Inode blankNode = new Inode();
             blankNode.toDisk(i);
         }
+
         for(int i = freeList; i < nodes; i++) {
             byte[] blankData = new byte[Disk.blockSize];
             SysLib.int2bytes(i + 1, blankData, 0);
@@ -91,6 +92,11 @@ public class SuperBlock {
      */
 
     public boolean returnBlock(int i) {
+        if(i > 0) {
+            byte[] dataFromBlock = new byte[Disk.blockSize];
+            SysLib.rawread(i, dataFromBlock);
+            return true;
+        }
         return false;
     }
 }
