@@ -34,14 +34,15 @@ public class SuperBlock {
     }
 
     public void format() {
-        format(64); //already written why write it close
+        format(defaultInodeBlocks); //already written why write it close
     }
+
     public void format(int nodes) {
-        for(int i = 0; i < nodes; i++) {
+        for(short i = 0; i < nodes; i++) {
             Inode blankNode = new Inode();
             blankNode.toDisk(i);
         }
-        for(i = freeList; i < defaultInodeBlocks; i++) {
+        for(int i = freeList; i < defaultInodeBlocks; i++) {
             byte[] blankData = new byte[Disk.blockSize];
             SysLib.int2bytes(i + 1, blankData, 0);
             SysLib.rawwrite(i, blankData);
@@ -50,7 +51,14 @@ public class SuperBlock {
     }
 
     public int getFreeBlock() {
-        return freeList++;
+        int temp = freeList; //create a temp block pointer
+        if(temp > 0) //if there is a block available
+        {
+            byte[] tempData = new byte[Disk.blockSize]; //back up data with Phyiscal memory
+            SysLib.rawread(freeList,tempData); //read from Disk
+            freeList = SysLib.bytes2int(tempData,0); // Sets the next free block
+        }
+        return temp; //return block ptr
     }
 
     public boolean returnBlock(int i) {
