@@ -7,6 +7,11 @@ public class SuperBlock {
     public int inodeBlocks;
     public int freeList;
 
+    /**
+     * 
+     * @param diskSize
+     */
+
     public SuperBlock(int diskSize) {
         //read the superblock from disk
         byte [] superBlock = new byte[Disk.blockSize];
@@ -25,17 +30,31 @@ public class SuperBlock {
         }
     }
 
+    /**
+     *
+     */
+
     public void sync() {
         byte[] superBlock = new byte[Disk.blockSize];
         SysLib.int2bytes(totalBlocks, superBlock, 0);
         SysLib.int2bytes(inodeBlocks, superBlock, 4);
         SysLib.int2bytes(freeList, superBlock, 8);
         SysLib.rawwrite(0,superBlock);
+        SysLib.cerr("Superblock synchronized\n"); //to format it like it was
     }
 
+    /**
+     *
+     */
+
     public void format() {
-        format(defaultInodeBlocks); //already written why write it close
+        format(defaultInodeBlocks); //already written why write it again
     }
+
+    /**
+     *
+     * @param nodes
+     */
 
     public void format(int nodes) {
         SysLib.cout("\n*************** EXECUTING FORMAT ****************\n");
@@ -43,13 +62,19 @@ public class SuperBlock {
             Inode blankNode = new Inode();
             blankNode.toDisk(i);
         }
-        for(short i = (short)freeList; i < nodes; i++) {
+
+        for(int i = freeList; i < nodes; i++) {
             byte[] blankData = new byte[Disk.blockSize];
             SysLib.int2bytes(i + 1, blankData, 0);
             SysLib.rawwrite(i, blankData);
         }
         sync();
     }
+
+    /**
+     *
+     * @return
+     */
 
     public int getFreeBlock() {
         int temp = freeList; //create a temp block pointer
@@ -62,6 +87,12 @@ public class SuperBlock {
         return temp; //return block ptr
     }
 
+    /**
+     * Enqueues a given block to the beginning of the free list
+     * @param i index of block
+     * @return
+     */
+
     public boolean returnBlock(int i) {
 
         if(i > 0) {
@@ -71,6 +102,7 @@ public class SuperBlock {
             SysLib.int2bytes(freeList, blankBlock, 0);
             SysLib.rawwrite(freeList, blankBlock);
             freeList = i;
+
 
             return true;
 
