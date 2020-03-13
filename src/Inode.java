@@ -49,11 +49,14 @@ public class Inode {
     }
 
     /**
-     * save to disk as the i-th inode
+     * Save to disk as the i-th inode
      * @param i
      */
     public void toDisk(short iNumber) {
-
+        byte[] data = new byte[Disk.blockSize];
+        int offset = (iNumber % 16) * 32;
+        SysLib.short2bytes(iNumber, data, offset);
+        SysLib.rawwrite(iNumber,data);
     }
 
     public int findIndexBlock() {
