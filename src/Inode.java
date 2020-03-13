@@ -74,14 +74,14 @@ public class Inode {
      * @param indexBlock The block number of the index block.
      * @return true uf success, false if there are direct block that can still be used.
      */
-    public boolean registerIndexBlock(short indexBlock){
-        for(int i = 0; i < directSize; i++) { //check if any direct blocks can be used
-            if(direct[i] == -1) {
+    public boolean registerIndexBlock(short indexBlock) {
+        for (int i = 0; i < directSize; i++) { //check if any direct blocks can be used
+            if (direct[i] == -1) {
                 return false; //if so fail.
             }
         }
 
-        if(indirect == -1) { //check if indirect block can be used
+        if (indirect == -1) { //check if indirect block can be used
             return false; //if so fail
         } else {
 
@@ -89,7 +89,7 @@ public class Inode {
             byte[] indexSetUp = new byte[Disk.size];
             int offset = 0;
 
-            for(int i = 0; i < (Disk.size / 2); i++) {
+            for (int i = 0; i < (Disk.size / 2); i++) {
                 SysLib.short2bytes((short) -1, indexSetUp, offset);
                 offset += 2;
             }
@@ -102,8 +102,11 @@ public class Inode {
         return false;
     }
 
-    public int findTargetBlock(int i) {
-        return -1;
+    public int findTargetBlock(int iNumber) {
+        if(block < 0 )
+            return -1;
+        else
+            return (iNumber % 16) * 32;
     }
 
     public int registerTargetBlock(int i, short i1) {
