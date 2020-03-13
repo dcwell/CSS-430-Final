@@ -33,11 +33,11 @@ public class Inode {
         flag = SysLib.bytes2short(data, offset);
         offset += 2;
         if(blockNumber > 15) { //direct blocks
-            for (int i = 0; i < iNumber; i++) {
-                direct[i] = -1;
+            for (int i = 0; i < directSize; i++) {
+                direct[i] = SysLib.bytes2short(data, offset);
+                offset += 2;
             }
-            offset += (iNumber * 2);
-            indirect = -1;
+            indirect = SysLib.bytes2short(data, offset);
         }else
         {
             for(int i  = indirect; i < indirect + 256; i++) //for if you are using indirect block
