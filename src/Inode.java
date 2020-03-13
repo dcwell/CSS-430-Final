@@ -32,7 +32,7 @@ public class Inode {
         offset += 2;
         flag = SysLib.bytes2short(data, offset);
         offset += 2;
-        if(blockNumber > 15) { //direct blocks
+        if(blockNumber < 11) { //direct blocks
             for (int i = 0; i < directSize; i++) {
                 direct[i] = SysLib.bytes2short(data, offset);
                 offset += 2;
@@ -61,11 +61,11 @@ public class Inode {
 
 
     /**
-     * find the Index Block
+     * Finds the Index Block Number
      * @return Index Block
      */
     public int findIndexBlock() {
-        return -1;
+        return indirect;
     }
 
     public boolean registerIndexBlock(short i){
