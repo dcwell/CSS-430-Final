@@ -51,7 +51,7 @@ public class SuperBlock {
         for(int i = 0; i < nodes; i++) {
             Inode blankNode = new Inode();
         }
-        for(i = freeList; i < defaultInodeBlocks; i++) {
+        for(i = freeList; i < nodes; i++) {
             byte[] blankData = new byte[Disk.blockSize];
             SysLib.int2bytes(i + 1, blankData, 0);
             SysLib.rawwrite(i, blankData);
