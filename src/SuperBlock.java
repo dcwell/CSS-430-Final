@@ -26,7 +26,7 @@ public class SuperBlock {
     }
 
     public void sync() {
-        byte [] superBlock = new byte[Disk.blockSize];
+        byte[] superBlock = new byte[Disk.blockSize];
         SysLib.int2bytes(totalBlocks, superBlock, 0);
         SysLib.int2bytes(inodeBlocks, superBlock, 4);
         SysLib.int2bytes(freeList, superBlock, 8);
@@ -38,6 +38,7 @@ public class SuperBlock {
     }
 
     public void format(int nodes) {
+        SysLib.cout("\n*************** EXECUTING FORMAT ****************\n");
         for(short i = 0; i < nodes; i++) {
             Inode blankNode = new Inode();
             blankNode.toDisk(i);
@@ -62,10 +63,17 @@ public class SuperBlock {
     }
 
     public boolean returnBlock(int i) {
+
         if(i > 0) {
-            byte[] dataFromBlock = new byte[Disk.blockSize];
-            SysLib.rawread(i, dataFromBlock);
+
+            byte[] blankBlock = new byte[Disk.blockSize];
+            SysLib.rawwrite(i, blankBlock);
+            SysLib.int2bytes(freeList, blankBlock, 0);
+            SysLib.rawwrite(freeList, blankBlock);
+            freeList = i;
+
             return true;
+
         }
         return false;
     }
