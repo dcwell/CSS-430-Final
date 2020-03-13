@@ -68,7 +68,37 @@ public class Inode {
         return indirect;
     }
 
-    public boolean registerIndexBlock(short i){
+    /**
+     * Sets up the indrect block so it can be used by the file system. Only called once needed by the system.
+     *
+     * @param indexBlock The block number of the index block.
+     * @return true uf success, false if there are direct block that can still be used.
+     */
+    public boolean registerIndexBlock(short indexBlock){
+        for(int i = 0; i < directSize; i++) { //check if any direct blocks can be used
+            if(direct[i] == -1) {
+                return false; //if so fail.
+            }
+        }
+
+        if(indirect == -1) { //check if indirect block can be used
+            return false; //if so fail
+        } else {
+
+            //set up a byte array to be written to index block
+            byte[] indexSetUp = new byte[Disk.size];
+            int offset = 0;
+
+            for(int i = 0; i < (Disk.size / 2); i++) {
+                SysLib.short2bytes((short) -1, indexSetUp, offset);
+                offset += 2;
+            }
+
+            SysLib.rawwrite(indexBlock, indexSetUp);
+            return true;
+
+        }
+
         return false;
     }
 
