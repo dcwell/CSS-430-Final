@@ -4,7 +4,7 @@
 public class SuperBlock {
     private final int defaultInodeBlocks = 64;
     public int totalBlocks;
-    public int totalINodes;
+    public int inodeBlocks;
     public int freeList;
 
     public SuperBlock(int diskSize) {
@@ -12,10 +12,10 @@ public class SuperBlock {
         byte [] superBlock = new byte[Disk.blockSize];
         SysLib.rawread(0,superBlock);
         totalBlocks = SysLib.bytes2int(superBlock, 0);
-        totalINodes = SysLib.bytes2int(superBlock,4);
+        inodeBlocks = SysLib.bytes2int(superBlock,4);
         freeList = SysLib.bytes2int(superBlock, 8 );
 
-        if(totalBlocks == diskSize && totalINodes > 0 && freeList >= 2)
+        if(totalBlocks == diskSize && inodeBlocks > 0 && freeList >= 2)
             //disk contents are valid
             return;
         else {
