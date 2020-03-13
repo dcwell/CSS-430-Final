@@ -81,15 +81,15 @@ public class Inode {
             }
         }
 
-        if (indirect == -1) { //check if indirect block can be used
+        if (indirect == -1) //check if indirect block can be used
             return false; //if so fail
-        } else {
+         else {
 
             //set up a byte array to be written to index block
-            byte[] indexSetUp = new byte[Disk.size];
+            byte[] indexSetUp = new byte[Disk.blockSize];
             int offset = 0;
 
-            for (int i = 0; i < (Disk.size / 2); i++) {
+            for (int i = 0; i < (Disk.blockSize / 2); i++) {
                 SysLib.short2bytes((short) -1, indexSetUp, offset);
                 offset += 2;
             }
@@ -98,23 +98,41 @@ public class Inode {
             return true;
 
         }
-
-        return false;
     }
 
     public int findTargetBlock(int iNumber) {
-        if(block < 0 )
+        if(iNumber < 0 )
             return -1;
         else
             return (iNumber % 16) * 32;
     }
 
     public int registerTargetBlock(int i, short i1) {
-        return -1;
+        if (i == -1)  //check if indirect block can be used
+            return i; //if so fail
+
+            //set up a byte array to be written to index block
+            byte[] indexSetUp = new byte[Disk.blockSize];
+            int offset = 0;
+
+            for (int index = 0; index < (Disk.blockSize / 2); index++) {
+                SysLib.short2bytes((short) i1, indexSetUp, offset);
+                offset += 2;
+            }
+
+            SysLib.rawwrite(i, indexSetUp);
+            return i;
     }
 
     public byte[] unregisterIndexBlock() {
-        return new byte[10];
+            //set up a byte array to be written to index block
+            byte[] indexSetUp = new byte[Disk.blockSize];
+            if(indirect > -1) { //if it is actually being used
+                int offset = 0;
+                SysLib.rawread(indirect, indexSetUp); //read up all the data inside the block
+                indirect = -1; //reset it to not being used
+                return indexSetUp;
+            }
+            return null;
     }
-
 }
