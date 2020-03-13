@@ -26,19 +26,33 @@ public class Inode {
         byte[] data = new byte[Disk.blockSize];
         SysLib.rawread(blockNumber, data);
         int offset = (iNumber % 16) * 32;
-
         length = SysLib.bytes2int(data, offset);
         offset += 4;
-        count SysLib.bytes2short(data, offset);
+        count = SysLib.bytes2short(data, offset);
         offset += 2;
         flag = SysLib.bytes2short(data, offset);
         offset += 2;
-
-        //more here
-
+        if(blockNumber > 15) { //direct blocks
+            for (int i = 0; i < iNumber; i++) {
+                direct[i] = -1;
+            }
+            offset += (iNumber * 2);
+            indirect = -1;
+        }else
+        {
+            for(int i  = indirect; i < indirect + 256; i++) //for if you are using indirect block
+            {
+                SysLib.bytes2int(data,offset);
+                SysLib.rawwrite(i,data);
+            }
+        }
     }
 
-    public void toDisk(short i) {
+    /**
+     * save to disk as the i-th inode
+     * @param i
+     */
+    public void toDisk(short iNumber) {
 
     }
 
@@ -59,7 +73,7 @@ public class Inode {
     }
 
     public byte[] unregisterIndexBlock() {
-        return new byet[10];
+        return new byte[10];
     }
 
 }
