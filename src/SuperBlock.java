@@ -34,30 +34,19 @@ public class SuperBlock {
     }
 
     public void format() {
-
-        for(int i = 0; i < defaultInodeBlocks; i++) {
-            Inode blankNode = new Inode();
-        }
-
-        for(i = freeList; i < defaultInodeBlocks; i++) {
-            byte[] blankData = new byte[Disk.blockSize];
-            SysLib.int2bytes(i + 1, blankData, 0);
-            SysLib.rawwrite(i, blankData);
-        }
-
-    public void format(int totalInodes) {
-
+        format(64); //already written why write it close
     }
-
     public void format(int nodes) {
         for(int i = 0; i < nodes; i++) {
             Inode blankNode = new Inode();
+            blankNode.toDisk(i);
         }
         for(i = freeList; i < defaultInodeBlocks; i++) {
             byte[] blankData = new byte[Disk.blockSize];
             SysLib.int2bytes(i + 1, blankData, 0);
             SysLib.rawwrite(i, blankData);
         }
+        sync();
     }
 
     public int getFreeBlock() {
