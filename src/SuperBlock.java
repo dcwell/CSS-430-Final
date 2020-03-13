@@ -7,6 +7,11 @@ public class SuperBlock {
     public int inodeBlocks;
     public int freeList;
 
+    /**
+     * 
+     * @param diskSize
+     */
+
     public SuperBlock(int diskSize) {
         //read the superblock from disk
         byte [] superBlock = new byte[Disk.blockSize];
@@ -25,6 +30,10 @@ public class SuperBlock {
         }
     }
 
+    /**
+     *
+     */
+
     public void sync() {
         byte [] superBlock = new byte[Disk.blockSize];
         SysLib.int2bytes(totalBlocks, superBlock, 0);
@@ -33,22 +42,36 @@ public class SuperBlock {
         SysLib.rawwrite(0,superBlock);
     }
 
+    /**
+     *
+     */
+
     public void format() {
-        format(defaultInodeBlocks); //already written why write it close
+        format(defaultInodeBlocks); //already written why write it again
     }
+
+    /**
+     *
+     * @param nodes
+     */
 
     public void format(int nodes) {
         for(short i = 0; i < nodes; i++) {
             Inode blankNode = new Inode();
             blankNode.toDisk(i);
         }
-        for(i = freeList; i < nodes; i++) {
+        for(int i = freeList; i < nodes; i++) {
             byte[] blankData = new byte[Disk.blockSize];
             SysLib.int2bytes(i + 1, blankData, 0);
             SysLib.rawwrite(i, blankData);
         }
         sync();
     }
+
+    /**
+     *
+     * @return
+     */
 
     public int getFreeBlock() {
         int temp = freeList; //create a temp block pointer
@@ -60,6 +83,12 @@ public class SuperBlock {
         }
         return temp; //return block ptr
     }
+
+    /**
+     *
+     * @param i
+     * @return
+     */
 
     public boolean returnBlock(int i) {
         return false;
