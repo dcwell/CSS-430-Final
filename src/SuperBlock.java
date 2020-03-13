@@ -62,6 +62,11 @@ public class SuperBlock {
     }
 
     public boolean returnBlock(int i) {
+        if(i > 0) {
+            byte[] dataFromBlock = new byte[];
+            SysLib.rawread(i, dataFromBlock);
+            return true;
+        }
         return false;
     }
 }
