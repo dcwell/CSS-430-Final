@@ -40,6 +40,7 @@ public class SuperBlock {
         SysLib.int2bytes(inodeBlocks, superBlock, 4);
         SysLib.int2bytes(freeList, superBlock, 8);
         SysLib.rawwrite(0,superBlock);
+        SysLib.cerr("Superblock synchronized\n"); //to format it like it was
     }
 
     /**
@@ -86,15 +87,17 @@ public class SuperBlock {
     }
 
     /**
-     *
-     * @param i
+     * Enqueues a given block to the beginning of the free list
+     * @param i index of block
      * @return
      */
 
     public boolean returnBlock(int i) {
-        if(i > 0) {
+        if(i >= 0) {
             byte[] dataFromBlock = new byte[Disk.blockSize];
-            SysLib.rawread(i, dataFromBlock);
+            SysLib.int2bytes(freeList,dataFromBlock,0);
+            SysLib.rawwrite(i, dataFromBlock); //writes it in physical memory
+            freeList = i; //sets the new free block to the front
             return true;
         }
         return false;
