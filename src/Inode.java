@@ -53,11 +53,12 @@ public class Inode {
     /**
      * Save to disk as the i-th inodes
      * Move memory into disk using the inumber Value
+     *
      * @param i
      */
     public void toDisk(short iNumber) {
         //SysLib.cout("\n**************** CALLING INODE TODISK *******************\n");
-        if(iNumber < 0)
+        if (iNumber < 0)
             return;
         //only needs 32 bytes for a single inode
         byte[] data = new byte[iNodeSize];
@@ -70,25 +71,24 @@ public class Inode {
         offsetInt += 2;
         //write the flag
         SysLib.short2bytes(flag, data, offsetInt);
-        offsetInt +=2;
+        offsetInt += 2;
 
         //write block number that direct pointer points to
         int pointerIndex;
-        for(pointerIndex = 0; pointerIndex < directSize; pointerIndex++)
-        {
+        for (pointerIndex = 0; pointerIndex < directSize; pointerIndex++) {
             SysLib.short2bytes(direct[pointerIndex], data, offsetInt);
             offsetInt += 2;
         }
         SysLib.short2bytes(indirect, data, offsetInt);
 
         //find the Inode we are on
-        pointerIndex = 1 + iNumber/16;
+        pointerIndex = 1 + iNumber / 16;
         byte[] nodeData = new byte[Disk.blockSize];
-        SysLib.rawread(pointerIndex,nodeData);
+        SysLib.rawread(pointerIndex, nodeData);
         offsetInt = (iNumber % 16) * iNodeSize;
 
         //write it back to disk
-        System.arraycopy(data,0,nodeData,offsetInt,32);
+        System.arraycopy(data, 0, nodeData, offsetInt, 32);
         SysLib.rawwrite(pointerIndex, nodeData);
     }
 
@@ -137,24 +137,21 @@ public class Inode {
      * @param iNumber
      * @return
      */
-   public int findTargetBlock(int offset) {
-       int iNumber = offset/Disk.blockSize;
-        if(iNumber < directSize)
-        {
-            if(direct[iNumber] < 0)
+    public int findTargetBlock(int offset) {
+        int iNumber = offset / Disk.blockSize;
+        if (iNumber < directSize) {
+            if (direct[iNumber] < 0)
                 return -1;
             else
                 return direct[iNumber];
+        } else if (indirect == -1)
+            return -1;
+        else {
+            byte[] data = new byte[Disk.blockSize];
+            SysLib.rawread(indirect, data);
+            int block = iNumber - directSize;
+            return SysLib.bytes2short(data, block * 2);
         }
-        else
-            if(indirect == -1)
-                return -1;
-            else {
-                byte[] data = new byte[Disk.blockSize];
-                SysLib.rawread(indirect, data);
-                int block = iNumber - directSize;
-                return SysLib.bytes2short(data, block * 2);
-            }
     }
 
     /**
@@ -162,36 +159,34 @@ public class Inode {
      * @param i1
      * @return
      */
-   public int registerTargetBlock(int var1, short var2) {
-        int var3 = var1 / 512;
-        if (var3 < 11) {
-            if (this.direct[var3] >= 0) {
+    public int registerTargetBlock(int numBytes, short targetBlockNumber) {
+        int offsetInt = numBytes / Disk.blockSize;
+
+        if(offsetInt < 11) {
+            if (direct[offsetInt] >= 0)
                 return -1;
-            } else if (var3 > 0 && this.direct[var3 - 1] == -1) {
+            else if (offsetInt > 0 && direct[offsetInt - 1] == -1)
                 return -2;
-            } else {
-                this.direct[var3] = var2;
+            else {
+                direct[offsetInt] = targetBlockNumber;
                 return 0;
             }
-        } else if (this.indirect < 0) {
-            return -3;
-        } else {
-            byte[] var4 = new byte[512];
-            SysLib.rawread(this.indirect, var4);
-            int var5 = var3 - 11;
-            if (SysLib.bytes2short(var4, var5 * 2) > 0) {
-                SysLib.cerr("indexBlock, indirectNumber = " + var5 + " contents = " + SysLib.bytes2short(var4, var5 * 2) + "\n");
+        }else if(indirect < 0)
+            return -3; //to replicate what you had
+        else {
+            byte[] data = new byte[Disk.blockSize];
+            SysLib.rawread(indirect, data);
+            int temp = offsetInt - directSize;
+            if (SysLib.bytes2short(data, temp * 2) > 0)
                 return -1;
-                } else {
-                    SysLib.short2bytes(var2, var4, var5 * 2);
-                    SysLib.rawwrite(this.indirect, var4);
-                    return 0;
-                }
+            else {
+                SysLib.short2bytes(targetBlockNumber, data, temp * 2);
+                SysLib.rawwrite(indirect, data);
+                return 0;
             }
 
-
-
-   }
+        }
+    }
 
     /**
      * @return
