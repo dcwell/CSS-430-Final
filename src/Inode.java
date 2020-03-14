@@ -32,11 +32,12 @@ public class Inode {
         offset += 2;
         flag = SysLib.bytes2short(data, offset);
         offset += 2;
-        for (int i = 0; i < directSize; i++) {
+        for (int i = 0; i < directSize; ++i) {
             direct[i] = SysLib.bytes2short(data, offset);
             offset += 2;
         }
         indirect = SysLib.bytes2short(data, offset);
+        offset+= 2;
     }
 
     /**
@@ -45,8 +46,8 @@ public class Inode {
      * @param i
      */
     public void toDisk(short iNumber) {
-        if(iNumber < 0)
-            return;
+//        if(iNumber < 0)
+//            return;
         //only needs 32 bytes for a single inode
         byte[] data = new byte[32];
         byte offset = 0;
