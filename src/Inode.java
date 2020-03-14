@@ -12,10 +12,9 @@ public class Inode {
     public short indirect;                          //indirect pointer
 
     /**
-     * Default constructor for an Inode
+     * Default constructor for an Inode.
      */
     public Inode() {
-        //SysLib.cout("\n**************** CALLING INODE DEFAULT CONST *******************\n");
         length = 0;
         count = 0;
         flag = 1;
@@ -31,7 +30,6 @@ public class Inode {
      * @param iNumber Index number to place the Inode at.
      */
     public Inode(short iNumber) {
-        //SysLib.cout("\n**************** CALLING INODE ONE ARG CONST *******************\n");
         int blockNumber = 1 + iNumber / 16;
         byte[] data = new byte[Disk.blockSize];
         SysLib.rawread(blockNumber, data);
@@ -54,10 +52,9 @@ public class Inode {
      * Save to disk as the i-th inodes
      * Move memory into disk using the inumber Value
      *
-     * @param i
+     * @param i the index number to place the node at.
      */
     public void toDisk(short iNumber) {
-        //SysLib.cout("\n**************** CALLING INODE TODISK *******************\n");
         if (iNumber < 0)
             return;
         //only needs 32 bytes for a single inode
@@ -94,12 +91,11 @@ public class Inode {
 
 
     /**
-     * returns the indirect block number because it is the same
+     * Returns the indirect block number because it is the same.
      *
      * @return Index Block
      */
     public int findIndexBlock() {
-        SysLib.cout("\n**************** CALLING INODE FIND INDEX BLOCK *******************\n");
         return indirect;
     }
 
@@ -110,7 +106,6 @@ public class Inode {
      * @return true uf success, false if there are direct block that can still be used.
      */
     public boolean registerIndexBlock(short indexBlock) {
-        SysLib.cout("\n**************** CALLING INODE REGISTER INDEX BLOCK *******************\n");
         for (int i = 0; i < directSize; i++) { //check if any direct blocks can be used
             if (direct[i] == -1)
                 return false; //if so fail.
@@ -134,8 +129,10 @@ public class Inode {
 
 
     /**
-     * @param iNumber
-     * @return
+     * Returns the index of the target block that should be searched for.
+     *
+     * @param offset the offset of the target.
+     * @return The short telling us where the target block is.
      */
     public int findTargetBlock(int offset) {
         int iNumber = offset / Disk.blockSize;
@@ -155,9 +152,11 @@ public class Inode {
     }
 
     /**
-     * @param iNumber
-     * @param i1
-     * @return
+     * Allocating a target block.
+     *
+     * @param iNumber index number of the target block.
+     * @param targetBlockNumber the block number to be put into the target
+     * @return free, failed (exe of method), or occupied block
      */
     public int registerTargetBlock(int numBytes, short targetBlockNumber) {
         int offsetInt = numBytes / Disk.blockSize;
@@ -189,10 +188,11 @@ public class Inode {
     }
 
     /**
-     * @return
+     * Deallocating index block for indirect pointers.
+     *
+     * @return The contense of the index block.
      */
     public byte[] unregisterIndexBlock() {
-        //SysLib.cout("\n**************** CALLING INODE UN-REGISTER INDEX BLOCK *******************\n");
         if (indirect > -1) { //if it is actually being used
             //set up a byte array to be written to index block
             byte[] indexSetUp = new byte[Disk.blockSize];
