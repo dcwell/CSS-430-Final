@@ -31,7 +31,7 @@ public class Inode {
      * @param iNumber
      */
     public Inode(short iNumber) {
-        //SysLib.cout("\n**************** CALLING INODE ONE ARG CONST *******************\n");
+      //  SysLib.cout("\n**************** CALLING INODE ONE ARG CONST *******************\n");
 
         int blockNumber = 1 + iNumber / 16;
         byte[] data = new byte[Disk.blockSize];
@@ -58,7 +58,6 @@ public class Inode {
      */
     public void toDisk(short iNumber) {
         //SysLib.cout("\n**************** CALLING INODE TODISK *******************\n");
-
         if(iNumber < 0)
             return;
         //only needs 32 bytes for a single inode
@@ -139,18 +138,9 @@ public class Inode {
      * @return
      */
     public int findTargetBlock(int iNumber) {
-        //SysLib.cout("\n**************** CALLING INODE FIND TARGET BLOCK *******************\n");
-        int indexNode = iNumber / Disk.blockSize;
-        if(indirect < 0) // if the indirect is not used
-            return -1;
-        else if (indexNode < directSize)
-            return direct[indexNode];
-        else {
-            byte[] data = new byte[Disk.blockSize];
-            SysLib.rawread(indirect, data);
-            int node = indexNode - directSize;
-            return SysLib.bytes2short(data,node *2);
-        }
+      if(iNumber >= 0)
+          return (iNumber / 16 + 1);
+      return -1;
     }
 
     /**
@@ -159,10 +149,9 @@ public class Inode {
      * @return
      */
     public int registerTargetBlock(int iNumber, short i1) {
-        //SysLib.cout("\n**************** CALLING INODE REGISTER TARGET BLOCK *******************\n");
-
-        if (iNumber == -1)  //check if indirect block can be used
-            return iNumber; //if so fail
+       // SysLib.cout("\n**************** CALLING INODE REGISTER TARGET BLOCK *******************\n");
+//        if (iNumber == -1)  //check if indirect block can be used
+//            return iNumber; //if so fail
 
         int block = iNumber / Disk.blockSize;
         if (direct[block] >= 0)
@@ -188,8 +177,7 @@ public class Inode {
      * @return
      */
     public byte[] unregisterIndexBlock() {
-        // SysLib.cout("\n**************** CALLING INODE UN-REGISTER INDEX BLOCK *******************\n");
-
+        //SysLib.cout("\n**************** CALLING INODE UN-REGISTER INDEX BLOCK *******************\n");
         if (indirect > -1) { //if it is actually being used
             //set up a byte array to be written to index block
             byte[] indexSetUp = new byte[Disk.blockSize];
