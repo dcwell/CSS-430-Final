@@ -31,25 +31,24 @@ public class Inode {
      * @param iNumber
      */
     public Inode(short iNumber) {
-      //  SysLib.cout("\n**************** CALLING INODE ONE ARG CONST *******************\n");
-
+        //SysLib.cout("\n**************** CALLING INODE ONE ARG CONST *******************\n");
         int blockNumber = 1 + iNumber / 16;
         byte[] data = new byte[Disk.blockSize];
         SysLib.rawread(blockNumber, data);
-        int offset = (iNumber % 16) * 32;
+        int offset = (iNumber % 16) * iNodeSize;
         length = SysLib.bytes2int(data, offset);
         offset += 4;
         count = SysLib.bytes2short(data, offset);
         offset += 2;
         flag = SysLib.bytes2short(data, offset);
         offset += 2;
-        for (int i = 0; i < directSize; ++i) {
+        for (int i = 0; i < directSize; i++) {
             direct[i] = SysLib.bytes2short(data, offset);
             offset += 2;
         }
         indirect = SysLib.bytes2short(data, offset);
-        offset+= 2;
     }
+
 
     /**
      * Save to disk as the i-th inodes
@@ -61,7 +60,7 @@ public class Inode {
         if(iNumber < 0)
             return;
         //only needs 32 bytes for a single inode
-        byte[] data = new byte[32];
+        byte[] data = new byte[iNodeSize];
         byte offset = 0;
         //write the length
         SysLib.int2bytes(length, data, offset);
@@ -86,7 +85,7 @@ public class Inode {
         pointerIndex = 1 + iNumber/16;
         byte[] nodeData = new byte[Disk.blockSize];
         SysLib.rawread(pointerIndex,nodeData);
-        offsetInt = (iNumber % 16) * 32;
+        offsetInt = (iNumber % 16) * iNodeSize;
 
         //write it back to disk
         System.arraycopy(data,0,nodeData,offsetInt,32);
@@ -100,7 +99,7 @@ public class Inode {
      * @return Index Block
      */
     public int findIndexBlock() {
-        //SysLib.cout("\n**************** CALLING INODE FIND INDEX BLOCK *******************\n");
+        SysLib.cout("\n**************** CALLING INODE FIND INDEX BLOCK *******************\n");
         return indirect;
     }
 
@@ -111,7 +110,7 @@ public class Inode {
      * @return true uf success, false if there are direct block that can still be used.
      */
     public boolean registerIndexBlock(short indexBlock) {
-        //SysLib.cout("\n**************** CALLING INODE REGISTER INDEX BLOCK *******************\n");
+        SysLib.cout("\n**************** CALLING INODE REGISTER INDEX BLOCK *******************\n");
         for (int i = 0; i < directSize; i++) { //check if any direct blocks can be used
             if (direct[i] == -1)
                 return false; //if so fail.
@@ -133,14 +132,23 @@ public class Inode {
         }
     }
 
+
     /**
      * @param iNumber
      * @return
      */
-    public int findTargetBlock(int iNumber) {
-      if(iNumber >= 0)
-          return (iNumber / 16 + 1);
-      return -1;
+   public int findTargetBlock(int var1) {
+        int var2 = var1 / 512;
+        if (var2 < 11) {
+            return this.direct[var2];
+        } else if (this.indirect < 0) {
+            return -1;
+        } else {
+            byte[] var3 = new byte[512];
+            SysLib.rawread(this.indirect, var3);
+            int var4 = var2 - 11;
+            return SysLib.bytes2short(var3, var4 * 2);
+        }
     }
 
     /**
@@ -148,30 +156,33 @@ public class Inode {
      * @param i1
      * @return
      */
-    public int registerTargetBlock(int iNumber, short i1) {
-       // SysLib.cout("\n**************** CALLING INODE REGISTER TARGET BLOCK *******************\n");
-//        if (iNumber == -1)  //check if indirect block can be used
-//            return iNumber; //if so fail
-
-        int block = iNumber / Disk.blockSize;
-        if (direct[block] >= 0)
-            return -1;
-        else if (block > 0 && direct[block - 1] == -1) //if it is not the superblock and is free
-            return -1;
-        else {
-            //set up a byte array to be written to index block
-            byte[] indexSetUp = new byte[Disk.blockSize];
-            SysLib.rawread(indirect, indexSetUp);
-            int bInt = block - 11;
-            if (SysLib.bytes2short(indexSetUp, bInt * 2) > 0)
+   public int registerTargetBlock(int var1, short var2) {
+        int var3 = var1 / 512;
+        if (var3 < 11) {
+            if (this.direct[var3] >= 0) {
                 return -1;
-            else {
-                SysLib.short2bytes(i1, indexSetUp, bInt * 2);
-                SysLib.rawwrite(indirect, indexSetUp);
+            } else if (var3 > 0 && this.direct[var3 - 1] == -1) {
+                return -2;
+            } else {
+                this.direct[var3] = var2;
                 return 0;
             }
+        } else if (this.indirect < 0) {
+            return -3;
+        } else {
+            byte[] var4 = new byte[512];
+            SysLib.rawread(this.indirect, var4);
+            int var5 = var3 - 11;
+            if (SysLib.bytes2short(var4, var5 * 2) > 0) {
+                SysLib.cerr("indexBlock, indirectNumber = " + var5 + " contents = " + SysLib.bytes2short(var4, var5 * 2) + "\n");
+                return -1;
+                } else {
+                    SysLib.short2bytes(var2, var4, var5 * 2);
+                    SysLib.rawwrite(this.indirect, var4);
+                    return 0;
+                }
+            }
         }
-    }
 
     /**
      * @return
