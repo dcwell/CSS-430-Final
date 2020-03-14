@@ -1,18 +1,27 @@
 /**
  * Date Revised: 3/13/2020
  * @authors Denali Cornwell & Jayden Stipek.
+ *
+ * This class represents a super block in a Unix style file system. It will hold 3 critical
+ * pieces of information, the total blocks in the system, how many Inodes there are, and an
+ * integer pointer for the first free block.
  */
 public class SuperBlock {
+    //Good number to initalize the amound of inodes to.
     private final int defaultInodeBlocks = 64;
+    //The amount of blocks in the system, 11 direct + 1 indrect.
     public int totalBlocks;
+    //Amount of inodes.
     public int inodeBlocks;
+    //The integer index of the first free block.
     public int freeList;
 
     /**
-     * 
-     * @param diskSize
+     * Constructs the superblock for the file system, taking in a diskSize int describing how many blocks are
+     * on the disk.
+     *
+     * @param diskSize How many blocks are on the disk.
      */
-
     public SuperBlock(int diskSize) {
         //read the superblock from disk
         byte [] superBlock = new byte[Disk.blockSize];
@@ -32,9 +41,8 @@ public class SuperBlock {
     }
 
     /**
-     *
+     * Syncs virtual memory and physical memory.
      */
-
     public void sync() {
         byte[] superBlock = new byte[Disk.blockSize];
         SysLib.int2bytes(totalBlocks, superBlock, 0);
@@ -45,19 +53,20 @@ public class SuperBlock {
     }
 
     /**
-     *uses format(int nodes) for simplicity
+     * Uses format(int nodes) for simplicity.
      */
-
     public void format() {
         format(defaultInodeBlocks); //already written why write it again
     }
 
     /**
-     * 
-     * @param nodes
+     * Formats a certian number of blocks so they are blank and ready to be used by the filesystem.
+     * Creates Inodes for each formatted block then sets the blocks to blank data.
+     *
+     * @param nodes The amount of blocks to be formatted and Inodes to make.
      */
     public void format(int nodes) {
-        SysLib.cout("\n*************** EXECUTING FORMAT ****************\n");
+        //SysLib.cout("\n*************** EXECUTING FORMAT ****************\n");
         for(short i = 0; i < nodes; i++) {
             Inode blankNode = new Inode();
             blankNode.toDisk(i);
@@ -72,10 +81,10 @@ public class SuperBlock {
     }
 
     /**
-     *Returns the first free block
-     * @return block ptr
+     * Returns the first free block.
+     *
+     * @return Block pointer
      */
-
     public int getFreeBlock() {
         int temp = freeList; //create a temp block pointer
         if(temp > 0) //if there is a block available
@@ -88,11 +97,11 @@ public class SuperBlock {
     }
 
     /**
-     * Enqueues a given block to the beginning of the free list
-     * @param blockNumber index of block
-     * @return
+     * Enqueues a given block to the beginning of the free list.
+     *
+     * @param blockNumber Index of block.
+     * @return return true if successful, false if not.
      */
-
     public boolean returnBlock(int blockNumber) {
         if(blockNumber >= 0) {
             byte[] blankBlock = new byte[Disk.blockSize];

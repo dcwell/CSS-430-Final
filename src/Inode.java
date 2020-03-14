@@ -28,7 +28,7 @@ public class Inode {
     /**
      * Secondary contructor for Inode, will construct an Inode with an iNumber.
      *
-     * @param iNumber
+     * @param iNumber Index number to place the Inode at.
      */
     public Inode(short iNumber) {
         //SysLib.cout("\n**************** CALLING INODE ONE ARG CONST *******************\n");
@@ -188,7 +188,10 @@ public class Inode {
                     return 0;
                 }
             }
-        }
+
+
+
+   }
 
     /**
      * @return
