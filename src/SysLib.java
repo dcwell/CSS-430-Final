@@ -1,8 +1,5 @@
 import java.util.*;
 
-/**
- * Edits by: Denali Cornwell and Jayden Stipek.
- */
 public class SysLib {
     public static int exec(String args[]) {
         return Kernel.interrupt(Kernel.INTERRUPT_SOFTWARE,
@@ -85,7 +82,7 @@ public class SysLib {
     }
 
     /****************************************************
-     * Heres The code given to us in the new version of SysLib
+     * Heres The code given to us
      * *************************************************
      */
 
@@ -129,88 +126,43 @@ public class SysLib {
      * *************************************************
      */
 
-    /**
-     * Close an fd from view of a thread.
-     *
-     * @param fd Which fd to close.
-     */
     public static int close(int fd) {
         return Kernel.interrupt(Kernel.INTERRUPT_SOFTWARE,
                 Kernel.CLOSE, fd, null);
     }
 
-    /**
-     * Format blocks for filesystem usage.
-     *
-     * @param files This is the number of files (blocks) to format on the disk.
-     */
     public static int format(int files) {
         return Kernel.interrupt(Kernel.INTERRUPT_SOFTWARE,
                 Kernel.FORMAT, files, null);
     }
 
-    /**
-     * Opens a file for filessystem usage. Can either open in read or write modes.
-     *
-     * @param fileName Name of the file to be opened.
-     * @param mode The mode the opened file should be in.
-     */
     public static int open(String fileName, String mode) {
         String[] args = new String[]{fileName, mode};
         return Kernel.interrupt(Kernel.INTERRUPT_SOFTWARE,
                 Kernel.OPEN, 0, args);
     }
 
-    /**
-     * Read bytes from a file to a byte array.
-     *
-     * @param fd file descriptor to read from.
-     * @param buf the buffer to read into.
-     */
     public static int read(int fd, byte[] buf) {
         return Kernel.interrupt(Kernel.INTERRUPT_SOFTWARE,
                 Kernel.READ, fd, buf);
     }
 
-    /**
-     * Writes bytes from a byte array to a file descriptor.
-     *
-     * @param fd File descriptor to write to.
-     * @param buf Buffer with bytes to write into fd.
-     */
     public static int write(int fd, byte[] buf) {
         return Kernel.interrupt(Kernel.INTERRUPT_SOFTWARE,
                 Kernel.WRITE, fd, buf);
     }
 
-    /**
-     * Seek information across a file using a "pointer" that can go forwards and reverse.
-     *
-     * @param fd The FD that contains the file to seek through.
-     * @param offset The offest within the file to seek from.
-     * @param whence Where to seek from in the file, back, front, or middle.
-     */
     public static int seek(int fd, int offset, int whence) {
         int[] args = new int[]{offset, whence};
         return Kernel.interrupt(Kernel.INTERRUPT_SOFTWARE,
                 Kernel.SEEK, fd, args);
     }
 
-    /**
-     * Delete a file in the file system.
-     *
-     * @param fileName The name of the file to be deleted.
-     */
     public static int delete(String fileName) {
         return Kernel.interrupt(Kernel.INTERRUPT_SOFTWARE,
                 Kernel.DELETE, 0, fileName);
     }
 
-    /**
-     * Get the size of a file at a file descriptor.
-     *
-     * @param fd FD for file to get size at.
-     */
     public static int fsize(int fd) {
         return Kernel.interrupt(Kernel.INTERRUPT_SOFTWARE,
                 Kernel.SIZE, fd, null);

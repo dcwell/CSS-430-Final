@@ -155,12 +155,12 @@ public class Kernel {
                                 System.out.println("threaOS: caused read errors");
                                 return ERROR;
                         }
-                        if ((myTcb = scheduler.getMyTcb()) != null) {
-                            FileTableEntry ftEnt = myTcb.getFtEnt(param);
-                            if (ftEnt != null)
-                                return fs.read(ftEnt, (byte[]) args);
-                        }
-                        return ERROR;
+                       if ((myTcb = scheduler.getMyTcb()) != null) {
+                          FileTableEntry ftEnt = myTcb.getFtEnt(param);
+                          if (ftEnt != null)
+                             return fs.read(ftEnt, (byte[]) args);
+                       }
+                       return ERROR;
                     case WRITE:
                         switch (param) {
                             case STDIN:
@@ -223,7 +223,7 @@ public class Kernel {
                     case FORMAT:
                         return (fs.format(param) == true) ? OK : ERROR;
                     case DELETE:
-                        return (fs.delete((String) args) == true) ? OK : ERROR;
+                        return (fs.delete( (String)args) == true) ? OK : ERROR;
                 }
                 return ERROR;
             case INTERRUPT_DISK: // Disk interrupts
@@ -256,11 +256,11 @@ public class Kernel {
                 String thrArgs[] = new String[args.length - 1];
                 for (int i = 1; i < args.length; i++)
                     thrArgs[i - 1] = args[i];
-                Object[] constructorArgs = new Object[]{thrArgs};
+                Object[] constructorArgs = new Object[] {thrArgs};
 
                 // locate this class object's constructors
                 Constructor thrConst
-                        = thrClass.getConstructor(new Class[]{String[].class});
+                        = thrClass.getConstructor(new Class[] {String[].class} );
 
                 // instantiate this class object by calling this constructor
                 // with arguments
