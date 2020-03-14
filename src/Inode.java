@@ -137,18 +137,24 @@ public class Inode {
      * @param iNumber
      * @return
      */
-   public int findTargetBlock(int var1) {
-        int var2 = var1 / 512;
-        if (var2 < 11) {
-            return this.direct[var2];
-        } else if (this.indirect < 0) {
-            return -1;
-        } else {
-            byte[] var3 = new byte[512];
-            SysLib.rawread(this.indirect, var3);
-            int var4 = var2 - 11;
-            return SysLib.bytes2short(var3, var4 * 2);
+   public int findTargetBlock(int offset) {
+       int iNumber = offset/Disk.blockSize;
+        if(iNumber < directSize)
+        {
+            if(direct[iNumber] < 0)
+                return -1;
+            else
+                return direct[iNumber];
         }
+        else
+            if(indirect == -1)
+                return -1;
+            else {
+                byte[] data = new byte[Disk.blockSize];
+                SysLib.rawread(indirect, data);
+                int block = iNumber - directSize;
+                return SysLib.bytes2short(data, block * 2);
+            }
     }
 
     /**
