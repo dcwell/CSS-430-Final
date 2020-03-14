@@ -35,11 +35,12 @@ public class Inode {
         offset += 2;
         flag = SysLib.bytes2short(data, offset);
         offset += 2;
-        for (int i = 0; i < directSize; i++) {
+        for (int i = 0; i < directSize; ++i) {
             direct[i] = SysLib.bytes2short(data, offset);
             offset += 2;
         }
         indirect = SysLib.bytes2short(data, offset);
+        offset+= 2;
     }
 
     /**
