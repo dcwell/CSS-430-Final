@@ -73,8 +73,16 @@ public class FileTable {
 
 
     public synchronized boolean ffree(FileTableEntry entry) {
-        entry.inode.toDisk(entry.iNumber);
         if(table.removeElement(entry)) {
+            entry.inode.count--;
+            int flag = entry.inode.flag;
+            //The node is being read so reset to default
+            if(flag == 1 || flag == 2)
+                entry.inode.flag = 0;
+            //Reset the node to bein in a special condition
+            if(flag == 4 || flag == 5)
+                entry.inode.flag = 3;
+            entry.inode.toDisk(entry.iNumber);
             notify();
             return true;
         }
