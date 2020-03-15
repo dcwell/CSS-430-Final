@@ -175,7 +175,7 @@ public class FileSystem {
                 int blockNum = ftEnt.inode.findTargetBlock(ftEnt.seekPtr);
                 if (blockNum == -1) {
                     short freeBlock = (short) superblock.getFreeBlock();
-                    short result = (short) ftEnt.inode.registerTargetBlock(ftEnt.seekPtr, freeBlock);
+                    int result = ftEnt.inode.registerTargetBlock(ftEnt.seekPtr, freeBlock);
                     if (result == -3) {
                         short nextFreeBlock = (short) superblock.getFreeBlock();
 
@@ -234,13 +234,10 @@ public class FileSystem {
         }
 
         for (int block = 0; block < ftEnt.inode.directSize; block++) {
-            if (block >= 11) {
-                ftEnt.inode.toDisk(ftEnt.iNumber);
-                return true;
-            }
 
             if (ftEnt.inode.direct[block] != -1) {
-                superblock.returnBlock(block);
+                superblock.returnBlock(ftEnt.inode.direct[block]);
+                ftEnt.inode.direct[block] = -1;
             }
         }
 
