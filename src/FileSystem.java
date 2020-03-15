@@ -66,6 +66,7 @@ public class FileSystem {
     }
 
     public int read(FileTableEntry ftEnt, byte[] buf) {
+
         return -1;
     }
 
@@ -74,6 +75,9 @@ public class FileSystem {
     }
 
     private boolean deallocAllBlocks(FileTableEntry ftEnt) {
+        short iNumber = ftEnt.iNumber;
+        if(directory.ifree(iNumber))
+            return true;
         return false;
     }
 
