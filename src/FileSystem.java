@@ -55,6 +55,10 @@ public class FileSystem {
      * @return true if success
      */
     public boolean format(int files) {
+        while (!filetable.fempty()) {
+            ; // wait
+        }
+
         directory = new Directory(superblock.inodeBlocks);
         filetable = new FileTable(directory);
         superblock.format(files);
@@ -86,10 +90,11 @@ public class FileSystem {
     public boolean close(FileTableEntry ftEnt) {
         synchronized (ftEnt) {
             ftEnt.count--;
-            if (ftEnt.count == 1) {
-                return filetable.ffree(ftEnt);
+            if (ftEnt.count > 0) { // if someone is using it
+                return false;
             }
-            return true;
+            return filetable.ffree(ftEnt);
+
         }
     }
 
@@ -109,7 +114,7 @@ public class FileSystem {
      * Reads to a buffer from an fd. Reads from seek ptr location.
      *
      * @param ftEnt fd to read from
-     * @param buf buffer to read into
+     * @param buf   buffer to read into
      * @return failure status or amount of data read.
      */
     public int read(FileTableEntry ftEnt, byte[] buf) {
@@ -127,7 +132,7 @@ public class FileSystem {
                     if (blockNum != -1) {
                         byte[] tempRead = new byte[Disk.blockSize];
                         //this is the location to read from
-                        SysLib.rawread(blockNum, buf);
+                        SysLib.rawread(blockNum, tempRead);
 
                         int dataInto = ftEnt.seekPtr % Disk.blockSize;
                         int remainingBlocks = Disk.blockSize - dataInto;
@@ -165,53 +170,53 @@ public class FileSystem {
         if (ftEnt.mode.equals("r"))
             return -1;
 
-            synchronized (ftEnt) {
-                int offset = 0;
-                int size = buf.length;
-                while (size > 0) {
-                    //get Block num
-                    int blockNum = ftEnt.inode.findTargetBlock(ftEnt.seekPtr);
-                    if (blockNum == -1) {
-                        short freeBlock = (short) superblock.getFreeBlock();
-                        short result = (short) ftEnt.inode.registerTargetBlock(ftEnt.seekPtr, freeBlock);
-                        if (result == -3) {
-                            short nextFreeBlock = (short) superblock.getFreeBlock();
+        synchronized (ftEnt) {
+            int offset = 0;
+            int size = buf.length;
+            while (size > 0) {
+                //get Block num
+                int blockNum = ftEnt.inode.findTargetBlock(ftEnt.seekPtr);
+                if (blockNum == -1) {
+                    short freeBlock = (short) superblock.getFreeBlock();
+                    short result = (short) ftEnt.inode.registerTargetBlock(ftEnt.seekPtr, freeBlock);
+                    if (result == -3) {
+                        short nextFreeBlock = (short) superblock.getFreeBlock();
 
-                            //if we are update the block, then that is an error
-                            if (ftEnt.inode.registerIndexBlock(nextFreeBlock))
-                                return -1;
-                            if (ftEnt.inode.registerTargetBlock(ftEnt.seekPtr, freeBlock) != 0)
-                                return -1;
-                            //if we do not succeed on updating the seek ptr
-                        } else if (result == 0)
-                            blockNum = freeBlock;
-                            //the direct ptr is bad
-                        else if (result == -1 || result == -2)
+                        //if we are update the block, then that is an error
+                        if (ftEnt.inode.registerIndexBlock(nextFreeBlock))
                             return -1;
-                    }
-                    byte[] tempRead = new byte[Disk.blockSize];
-                    //this is the location to read from what it is pointing to
-                    if (SysLib.rawread(blockNum, tempRead) == -1)
-                        System.exit(2);
-
-                    int position = ftEnt.seekPtr % Disk.blockSize;
-                    int remaining = Disk.blockSize - position;
-                    int availablePlace = Math.min(remaining, size);
-                    System.arraycopy(buf, offset, tempRead, position, availablePlace);
-                    SysLib.rawwrite(blockNum, tempRead);
-                    ftEnt.seekPtr += availablePlace;
-                    offset += availablePlace;
-                    size -= availablePlace;
-
-                    if (ftEnt.seekPtr > ftEnt.inode.length)
-                        ftEnt.inode.length = ftEnt.seekPtr;
-
+                        if (ftEnt.inode.registerTargetBlock(ftEnt.seekPtr, freeBlock) != 0)
+                            return -1;
+                        //if we do not succeed on updating the seek ptr
+                    } else if (result == 0)
+                        blockNum = freeBlock;
+                        //the direct ptr is bad
+                    else if (result == -1 || result == -2)
+                        return -1;
                 }
-                //update the inode
-                ftEnt.inode.toDisk(ftEnt.iNumber);
-                return offset;
-                }
+                byte[] tempRead = new byte[Disk.blockSize];
+                //this is the location to read from what it is pointing to
+                if (SysLib.rawread(blockNum, tempRead) == -1)
+                    System.exit(2);
+
+                int position = ftEnt.seekPtr % Disk.blockSize;
+                int remaining = Disk.blockSize - position;
+                int availablePlace = Math.min(remaining, size);
+                System.arraycopy(buf, offset, tempRead, position, availablePlace);
+                SysLib.rawwrite(blockNum, tempRead);
+                ftEnt.seekPtr += availablePlace;
+                offset += availablePlace;
+                size -= availablePlace;
+
+                if (ftEnt.seekPtr > ftEnt.inode.length)
+                    ftEnt.inode.length = ftEnt.seekPtr;
+
+            }
+            //update the inode
+            ftEnt.inode.toDisk(ftEnt.iNumber);
+            return offset;
         }
+    }
 
     /**
      * Deallocates all blocks associated with the fd file table entry.
@@ -220,17 +225,23 @@ public class FileSystem {
      * @return true if success, false if not.
      */
     private boolean deallocAllBlocks(FileTableEntry ftEnt) {
-        if (ftEnt.count > 1) {
+        if (ftEnt.inode.count != 1) {
             return false;
         }
-
         byte[] trash = ftEnt.inode.unregisterIndexBlock();
-        short ptr;
-        while ((ptr = SysLib.bytes2short(trash, 0)) != -1) {
-            superblock.returnBlock(ptr);
+        if (trash != null) {
+            short ptr;
+            while ((ptr = SysLib.bytes2short(trash, 0)) != -1) {
+                superblock.returnBlock(ptr);
+            }
         }
 
         for (int block = 0; block < ftEnt.inode.directSize; block++) {
+            if (block >= 11) {
+                ftEnt.inode.toDisk(ftEnt.iNumber);
+                return true;
+            }
+
             if (ftEnt.inode.direct[block] != -1) {
                 superblock.returnBlock(block);
             }
@@ -257,23 +268,27 @@ public class FileSystem {
     /**
      * Allows for seeking accross a files bytes.
      *
-     * @param ftEnt entry to change the seekPtr in
+     * @param ftEnt  entry to change the seekPtr in
      * @param offset Amount of bytes specified to deiviate from original position
      * @param whence refrence of where to start the seeking.
      * @return -1 on fail or the new value of seekPtr
      */
     public int seek(FileTableEntry ftEnt, int offset, int whence) {
         synchronized (ftEnt) {
-            if(whence == SEEK_SET) {
-                ftEnt.seekPtr = offset;
-            } else if(whence == SEEK_CUR) {
-                ftEnt.seekPtr += offset;
-            } else if(whence == SEEK_END) {
-                ftEnt.seekPtr = ftEnt.inode.length + offset;
-            } else {
-                return -1;
-            }
+            if(ftEnt == null) return -1;
 
+            if (whence == SEEK_SET) {
+                if(offset <= fsize(ftEnt) && offset >=0)
+                    ftEnt.seekPtr = offset;
+            } else if (whence == SEEK_CUR) {
+                if(ftEnt.seekPtr + offset <= fsize(ftEnt) && ((ftEnt.seekPtr + offset) >= 0))
+                    ftEnt.seekPtr += offset;
+            } else if (whence == SEEK_END) {
+                if(fsize(ftEnt) + offset >= 0 && fsize(ftEnt) + offset <= fsize(ftEnt))
+                    ftEnt.seekPtr = ftEnt.inode.length + offset;
+                else
+                    return -1;
+            }
             return ftEnt.seekPtr;
         }
     }
