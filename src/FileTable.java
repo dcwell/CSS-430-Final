@@ -44,7 +44,7 @@ public class FileTable {
                     } else {
                         try {
                             wait();
-                        } catch(InterruptedException e);
+                        } catch(InterruptedException e) {}
                     }
 
                 }
@@ -60,6 +60,7 @@ public class FileTable {
                 return null;
             }
 
+
         }
 
         //this is FOR SURE GOOD
@@ -69,6 +70,7 @@ public class FileTable {
         table.add(entry); //add the new FTE to the table
         return entry;//return a refrence to the file table entry
     }
+
 
     public synchronized boolean ffree(FileTableEntry entry) {
         return false;
