@@ -6,11 +6,24 @@ public class FileSystem {
     private final int SEEK_CUR = 1;
     private final int SEEK_END = 2;
 
-    public FileSystem(int i) {
+
+    public FileSystem(int diskBlocks) {
         superblock = new SuperBlock(diskBlocks);
         directory = new Directory(superblock.inodeBlocks);
         filetable = new FileTable(directory);
 
+        //read the "/" file from disk
+        FileTableEntry dirEnt = open("/", "r");
+        int dirSize = fsize(dirEnt);
+        if(dirSize > 0)
+        {
+            //The directory has some data
+            byte[] dirData = new byte[dirSize];
+            read(dirEnt, dirData);
+            directory.bytes2directory(dirData);
+        }
+        close(dirEnt);
+    }
 
     }
 
