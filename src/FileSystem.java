@@ -58,9 +58,9 @@ public class FileSystem {
         while (!filetable.fempty()) {
         }
 
+        superblock.format(files);
         directory = new Directory(superblock.inodeBlocks);
         filetable = new FileTable(directory);
-        superblock.format(files);
         return true;
     }
 
@@ -74,7 +74,7 @@ public class FileSystem {
     public FileTableEntry open(String filename, String mode) {
         FileTableEntry ftEnt = filetable.falloc(filename, mode);
         if (mode.equals("w")) {
-            if (deallocAllBlocks(ftEnt) == false)
+            if (!deallocAllBlocks(ftEnt))
                 return null;
         }
         return ftEnt;
@@ -160,40 +160,49 @@ public class FileSystem {
      */
     public int write(FileTableEntry ftEnt, byte[] buf) {
         //if nothing is to write
-        if (buf.length == 0 || ftEnt == null)
+        if (buf.length == 0 || ftEnt == null) {
+            SysLib.cout("buf length 0");
             return -1;
+        }
 
-        if (ftEnt.mode.equals("r"))
+        if (ftEnt.mode.equals("r")) {
+            SysLib.cout("buf length 0");
             return -1;
+        }
 
         synchronized (ftEnt) {
             int offset = 0;
             int size = buf.length;
             while (size > 0) {
-                //get Block num
                 int blockNum = ftEnt.inode.findTargetBlock(ftEnt.seekPtr);
                 if (blockNum == -1) {
-                    short freeBlock = (short) superblock.getFreeBlock();
-                    int result = ftEnt.inode.registerTargetBlock(ftEnt.seekPtr, freeBlock);
-                    if (result == -3) {
-                        short nextFreeBlock = (short) superblock.getFreeBlock();
+                    short freeBlock = (short)this.superblock.getFreeBlock();
+                    switch(ftEnt.inode.registerTargetBlock(ftEnt.seekPtr, freeBlock)) {
+                        case -3:
+                            short nextFreeBlock = (short)this.superblock.getFreeBlock();
+                            if (!ftEnt.inode.registerIndexBlock(nextFreeBlock)) {
+                                SysLib.cerr("ThreadOS: panic on write\n");
+                                return -1;
+                            }
 
-                        //if we are update the block, then that is an error
-                        if (ftEnt.inode.registerIndexBlock(nextFreeBlock))
+                            if (ftEnt.inode.registerTargetBlock(ftEnt.seekPtr, freeBlock) != 0) {
+                                SysLib.cerr("ThreadOS: panic on write\n");
+                                return -1;
+                            }
+                        case 0:
+                        default:
+                            blockNum = freeBlock;
+                            break;
+                        case -1:
+                        case -2:
+                            SysLib.cerr("ThreadOS: filesystem panic on write\n");
                             return -1;
-                        if (ftEnt.inode.registerTargetBlock(ftEnt.seekPtr, freeBlock) != 0)
-                            return -1;
-                        //if we do not succeed on updating the seek ptr
-                    } else if (result == -1 || result == -2)
-                        return -1;
-                    else
-                        blockNum = freeBlock;
+                    }
                 }
                 byte[] tempRead = new byte[Disk.blockSize];
                 //this is the location to read from what it is pointing to
                 if (SysLib.rawread(blockNum, tempRead) == -1)
                     System.exit(2);
-
                 int position = ftEnt.seekPtr % Disk.blockSize;
                 int remaining = Disk.blockSize - position;
                 int availablePlace = Math.min(remaining, size);
