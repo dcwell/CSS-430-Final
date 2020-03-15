@@ -25,14 +25,22 @@ public class FileSystem {
         close(dirEnt);
     }
 
+    /**
+     * syncs the data from the directory back to the disk
+     */
     public void sync() {
         FileTableEntry dirEnt = open("/","r");
         byte[] data = directory.directory2bytes();
-        write(dirEnt,data);
+        write(dirEnt,data); //write back to disk
         close(dirEnt);
         superblock.sync();
     }
 
+    /**
+     * formats the files after being shut down previously
+     * @param files
+     * @return
+     */
     public boolean format(int files) {
         directory = new Directory(superblock.inodeBlocks);
         filetable = new FileTable(directory);
@@ -40,6 +48,13 @@ public class FileSystem {
         return true;
     }
 
+    /**
+     * allocates a new file
+     *
+     * @param filename the name of file to be opened
+     * @param mode the mode to open the file into
+     * @return A File table entry that correspons to the file with the given mode 
+     */
     public FileTableEntry open(String filename, String mode) {
         FileTableEntry ftEnt = filetable.falloc(filename, mode);
         if(mode.equals("w")) {
@@ -49,6 +64,11 @@ public class FileSystem {
         return ftEnt;
     }
 
+    /**
+     *
+     * @param ftEnt
+     * @return
+     */
     public boolean close(FileTableEntry ftEnt) {
         synchronized (ftEnt) {
             ftEnt.count--;
@@ -59,21 +79,43 @@ public class FileSystem {
         }
     }
 
+    /**
+     *
+     * @param ftEnt
+     * @return
+     */
     public int fsize(FileTableEntry ftEnt) {
         synchronized (ftEnt) {
             return ftEnt.inode.length;
         }
     }
 
+    /**
+     *
+     * @param ftEnt
+     * @param buf
+     * @return
+     */
     public int read(FileTableEntry ftEnt, byte[] buf) {
 
         return -1;
     }
 
+    /**
+     *
+     * @param ftEnt
+     * @param buf
+     * @return
+     */
     public int write(FileTableEntry ftEnt, byte[] buf) {
         return -1;
     }
 
+    /**
+     *
+     * @param ftEnt
+     * @return
+     */
     private boolean deallocAllBlocks(FileTableEntry ftEnt) {
         short iNumber = ftEnt.iNumber;
         if(directory.ifree(iNumber))
@@ -81,6 +123,11 @@ public class FileSystem {
         return false;
     }
 
+    /**
+     *
+     * @param filename
+     * @return
+     */
     public boolean delete(String filename) {
         FileTableEntry ftEnt = open(filename, "w");
         short iNumber = ftEnt.iNumber;
@@ -89,6 +136,13 @@ public class FileSystem {
         return false;
     }
 
+    /**
+     *
+     * @param ftEnt
+     * @param offset
+     * @param whence
+     * @return
+     */
     public int seek(FileTableEntry ftEnt, int offset, int whence) {
         return -1;
     }
