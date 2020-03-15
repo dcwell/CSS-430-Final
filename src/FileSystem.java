@@ -117,10 +117,24 @@ public class FileSystem {
      * @return
      */
     private boolean deallocAllBlocks(FileTableEntry ftEnt) {
-        short iNumber = ftEnt.iNumber;
-        if(directory.ifree(iNumber))
-            return true;
-        return false;
+        if(ftEnt.count > 1) {
+            return false;
+        }
+
+        byte[] trash = ftEnt.inode.unregisterIndexBlock();
+        short ptr;
+        while((ptr = SysLib.bytes2short(trash,0)) != -1) {
+            superblock.returnBlock(ptr);
+        }
+
+        for(int block = 0; block < ftEnt.inode.directSize; block++) {
+            if(ftEnt.inode.direct[block] != -1) {
+                superblock.returnBlock(block);
+            }
+        }
+
+        ftEnt.inode.toDisk(ftEnt.iNumber);
+        return true;
     }
 
     /**
