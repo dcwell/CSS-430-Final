@@ -154,7 +154,42 @@ public class FileTableEntry {  // Each table entry should have
     }
 }
 
+/*****************************************************
+THIS IS FOR falloc IN FT
+******************************************************
 
+/*newNode = new Inode(iNumber);
+
+            if(iNumber > -1) {
+                if(mode.equals("r")) { //present and requesting read
+
+                    if(newNode.flag == 3) {
+                        try {
+                            wait();
+                        } catch(InterruptedException e) {}
+                    } else {
+                        newNode.flag = 2;
+                        break;
+                    }
+
+                } else { //if present and requesting write
+                    if(newNode.flag == 0 || newNode.flag == 1) {
+                        newNode.flag = 3;
+                        break;
+                    } else {
+                        try {
+                            wait();
+                        } catch(InterruptedException e) {}
+                    }
+                }
+
+                //NEEDS ONE MORE CASE FOR NON-PRESENT INUMBER
+                //SHOULD USE DIR.IALLOC(FILENAME) TO ALLOCATE A SPACE
+                //FOR FILE THAT DOES NOT ALREADY EXIST.
+
+            } else {
+                return null;
+            }*/
 
 
 
