@@ -54,14 +54,12 @@ public class FileSystem {
             }
             return true;
         }
-        return false;
     }
 
     public int fsize(FileTableEntry ftEnt) {
         synchronized (ftEnt) {
             return ftEnt.inode.length;
         }
-        return -1;
     }
 
     public int read(FileTableEntry ftEnt, byte[] buf) {
@@ -80,12 +78,7 @@ public class FileSystem {
         return false;
     }
 
-    private final int SEEK_SET = 0;
-    private final int SEEK_CUR = 1;
-    private final int SEEK_END = 2;
-
     public int seek(FileTableEntry ftEnt, int offset, int whence) {
         return -1;
     }
-
 }
