@@ -9,6 +9,13 @@ public class FileTable {
         dir = directory;
     }
 
+    /**
+     *
+     * @param fileName
+     * @param mode
+     * @return
+     */
+
     public synchronized FileTableEntry falloc(String fileName, String mode) {
         //need to set these up to eventually make a FileTableEntry with.
         Inode newNode;
@@ -71,9 +78,16 @@ public class FileTable {
         return entry;//return a refrence to the file table entry
     }
 
-
+    /**
+     * Recieve a file table entry reference
+     * Save the corresponding inode to the disk
+     * free this file table entry
+     * return true if this file table entry found in my table
+     * @param entry FileTable entry we are trying to free
+     * @return true if freed, false if not
+     */
     public synchronized boolean ffree(FileTableEntry entry) {
-        if(table.removeElement(entry)) {
+        if(table.removeElement(entry)){
             entry.inode.count--;
             int flag = entry.inode.flag;
             //The node is being read so reset to default
