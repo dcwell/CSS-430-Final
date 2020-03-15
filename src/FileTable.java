@@ -14,6 +14,9 @@ public class FileTable {
         Inode newNode;
         short iNumber;
 
+        wInode inode = null;
+        short iNumber = -1;
+
         while(true) {
 
             if(fileName.equals("/")) {
@@ -22,45 +25,28 @@ public class FileTable {
                 iNumber = dir.namei(fileName);
             }
 
-            if(iNumber > -1) {
-
-                newNode = new Inode(iNumber);
-                if(mode.equals("r")) {
-
-                    if(newNode.flag == 0 || newNode.flag == 1 || newNode.flag == 2) {
-                        newNode.flag = 2;
-                        break;
-                    } else {
-                        try {
-                            wait();
-                        } catch(InterruptedException e) {}
-                    }
-
-                } else {
-
-                    if(newNode.flag == 0 || newNode.flag == 1 || newNode.flag == 3) {
-                        newNode.flag = 3;
-                        break;
-                    } else {
-                        try {
-                            wait();
-                        } catch(InterruptedException e) {}
-                    }
-
-                }
-
-            } else if(!mode.equals("r")) {
-
-                iNumber = dir.ialloc(fileName);
-                newNode = new Inode(iNumber);
-                newNode.flag = 3;
-                break;
-
-            } else {
-                return null;
+            if(iNumber >= 0) {
+                inode = new Inode(iNumber);
             }
-
-
+            if(mode.equals("r")) {
+                if(inode.flag == 2) {
+                    break;
+                } else if(inode.flag == 3) {
+                    try { wait(); } catch(InterruptedException e) {}
+                } else if(inode.flag == 4) {
+                    iNumber = -1;
+                    return null;
+                }
+            } else if(mode.equals("w")) {
+                if(inode.flag == 2) {
+                    try { wait(); } catch(InterruptedException e) {}
+                } else if (inode.flag == 3) {
+                    break;
+                } else if(inode.flag == 4) {
+                    iNumber = -1;
+                    return null;
+                }
+            }
         }
 
         //this is FOR SURE GOOD
