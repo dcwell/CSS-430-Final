@@ -34,7 +34,6 @@ public class FileSystem {
     }
 
     public boolean format(int files) {
-        FileTableEntry dirEnt = open("/","r");
         directory = new Directory(superblock.inodeBlocks);
         filetable = new FileTable(directory);
         superblock.format(files);
