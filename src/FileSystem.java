@@ -1,12 +1,25 @@
+/**
+ * Code by: Denali Cornwell & Jayden Stipek
+ */
 public class FileSystem {
+    //Super block to control all blocks and freelist
     private SuperBlock superblock;
+    //Directory files will be in
     private Directory directory;
+    //Tracks files and their statuses/modes
     private FileTable filetable;
+
+    //Help for the seek method.
     private final int SEEK_SET = 0;
     private final int SEEK_CUR = 1;
     private final int SEEK_END = 2;
 
 
+    /**
+     * Constructor for the file system class. Given in slides.
+     *
+     * @param diskBlocks disk blocks to set up the file system with, should be 1000 in our case.
+     */
     public FileSystem(int diskBlocks) {
         superblock = new SuperBlock(diskBlocks);
         directory = new Directory(superblock.inodeBlocks);
@@ -26,7 +39,7 @@ public class FileSystem {
     }
 
     /**
-     * syncs the data from the directory back to the disk
+     * Syncs the data from the directory back to the disk.
      */
     public void sync() {
         FileTableEntry dirEnt = open("/","r");
@@ -38,8 +51,9 @@ public class FileSystem {
 
     /**
      * formats the files after being shut down previously
-     * @param files
-     * @return
+     *
+     * @param files number of files to format
+     * @return true if success
      */
     public boolean format(int files) {
         directory = new Directory(superblock.inodeBlocks);
@@ -49,7 +63,7 @@ public class FileSystem {
     }
 
     /**
-     * allocates a new file
+     * Allocates a new fd with filename and mode.
      *
      * @param filename the name of file to be opened
      * @param mode the mode to open the file into
@@ -65,9 +79,10 @@ public class FileSystem {
     }
 
     /**
+     * Closes an fd from the file table.
      *
-     * @param ftEnt
-     * @return
+     * @param ftEnt entry to close.
+     * @return false if fail, true on success.
      */
     public boolean close(FileTableEntry ftEnt) {
         synchronized (ftEnt) {
@@ -80,9 +95,10 @@ public class FileSystem {
     }
 
     /**
+     * Returns the size of a file
      *
-     * @param ftEnt
-     * @return
+     * @param ftEnt the target file
+     * @return file size as int
      */
     public int fsize(FileTableEntry ftEnt) {
         synchronized (ftEnt) {
@@ -91,10 +107,11 @@ public class FileSystem {
     }
 
     /**
+     * Reads to a buffer from an fd. Reads from seek ptr location.
      *
-     * @param ftEnt
-     * @param buf
-     * @return
+     * @param ftEnt fd to read from
+     * @param buf buffer to read into
+     * @return failure status or amount of data read.
      */
     public int read(FileTableEntry ftEnt, byte[] buf) {
         if(buf == null)
@@ -151,9 +168,10 @@ public class FileSystem {
     }
 
     /**
+     * Deallocates all blocks associated with the fd file table entry.
      *
-     * @param ftEnt
-     * @return
+     * @param ftEnt fd to deallocate block from
+     * @return true if success, false if not.
      */
     private boolean deallocAllBlocks(FileTableEntry ftEnt) {
         if(ftEnt.count > 1) {
@@ -177,9 +195,10 @@ public class FileSystem {
     }
 
     /**
+     * Deletes the file and frees the block.
      *
-     * @param filename
-     * @return
+     * @param filename file to delete
+     * @return true if success, false if not.
      */
     public boolean delete(String filename) {
         FileTableEntry ftEnt = open(filename, "w");
@@ -190,13 +209,26 @@ public class FileSystem {
     }
 
     /**
+     * Allows for seeking accross a files bytes.
      *
-     * @param ftEnt
-     * @param offset
-     * @param whence
-     * @return
+     * @param ftEnt entry to change the seekPtr in
+     * @param offset Amount of bytes specified to deiviate from original position
+     * @param whence refrence of where to start the seeking.
+     * @return -1 on fail or the new value of seekPtr
      */
     public int seek(FileTableEntry ftEnt, int offset, int whence) {
-        return -1;
+        synchronized (ftEnt) {
+            if(whence == SEEK_SET) {
+                ftEnt.seekPtr = offset;
+            } else if(whence == SEEK_CUR) {
+                ftEnt.seekPtr += offset;
+            } else if(whence == SEEK_END) {
+                ftEnt.seekPtr = ftEnt.inode.length + offset;
+            } else {
+                return -1;
+            }
+
+            return ftEnt.seekPtr;
+        }
     }
 }
