@@ -26,7 +26,6 @@ public class FileTable {
             else
                 iNumber = dir.namei(fileName);
 
-
             if (iNumber < 0) {
                 if (mode.equals("r"))
                     return null;
@@ -64,9 +63,6 @@ public class FileTable {
             theINode.flag = 2;
             break;
         }
-
-
-        //this is FOR SURE GOOD
         theINode.count++; //incrememt the inode count
         theINode.toDisk(iNumber); //immediatly write this inode to the disk4
         FileTableEntry entry = new FileTableEntry(theINode, iNumber, mode); //make the FTE to return
