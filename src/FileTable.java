@@ -18,10 +18,7 @@ public class FileTable {
 
     public synchronized FileTableEntry falloc(String fileName, String mode) {
         //need to set these up to eventually make a FileTableEntry with.
-        Inode newNode;
-        short iNumber;
-
-        wInode inode = null;
+        Inode inode = null;
         short iNumber = -1;
 
         while(true) {
@@ -35,6 +32,7 @@ public class FileTable {
             if(iNumber >= 0) {
                 inode = new Inode(iNumber);
             }
+
             if(mode.equals("r")) {
                 if(inode.flag == 2) {
                     break;
@@ -57,9 +55,9 @@ public class FileTable {
         }
 
         //this is FOR SURE GOOD
-        newNode.count++; //incrememt the inode count
-        newNode.toDisk(iNumber); //immediatly write this inode to the disk4
-        FileTableEntry entry = new FileTableEntry(newNode, iNumber, mode); //make the FTE to return
+        inode.count++; //incrememt the inode count
+        inode.toDisk(iNumber); //immediatly write this inode to the disk4
+        FileTableEntry entry = new FileTableEntry(inode, iNumber, mode); //make the FTE to return
         table.add(entry); //add the new FTE to the table
         return entry;//return a refrence to the file table entry
     }
