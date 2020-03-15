@@ -53,7 +53,7 @@ public class FileSystem {
      *
      * @param filename the name of file to be opened
      * @param mode the mode to open the file into
-     * @return A File table entry that correspons to the file with the given mode 
+     * @return A File table entry that correspons to the file with the given mode
      */
     public FileTableEntry open(String filename, String mode) {
         FileTableEntry ftEnt = filetable.falloc(filename, mode);
@@ -97,8 +97,46 @@ public class FileSystem {
      * @return
      */
     public int read(FileTableEntry ftEnt, byte[] buf) {
+        if(buf == null)
+            return -1;
+       if(ftEnt.mode != "w" && ftEnt.mode != "a")
+       {
+           int trackDataRead = 0;
+           int size = buf.length;
+           synchronized (ftEnt)
+           {
+               //one stop when the seek pointer is still within rang
+               // and buff isnt full
+               while(buf.length > 0 && ftEnt.seekPtr < fsize(ftEnt))
+               {
+                   //get Block num
+                   int blockNum = ftEnt.inode.findTargetBlock(ftEnt.seekPtr);
+                   if(blockNum != -1) {
+                       byte[] tempRead = new byte[Disk.blockSize];
+                       //this is the location to read from
+                       SysLib.rawread(blockNum, buf);
 
-        return -1;
+                       int dataInto = ftEnt.seekPtr % Disk.blocksize;
+                       int remainingBlocks = Disk.blockSize - dataInto;
+                       int remainingBytes = fsize(ftEnt) - ftEnt.seekPtr;
+
+                       int leftToRead = Math.min(Math.min(remainingBlocks, size), remainingBytes);
+                       System.arraycopy(tempRead, dataInto, buf, trackDataRead, leftToRead);
+                       //update the variable to read into the byte array
+                       trackDataRead += leftToRead;
+                       //Update The Seek Pointer
+                       ftEnt.seekPtr += leftToRead;
+                       //Update the size
+                       size -= leftToRead;
+                   }else
+                   {
+                       //wrong block locations
+                       break;
+                   }
+               }
+               return trackDataRead;
+           }
+       }
     }
 
     /**
@@ -117,6 +155,10 @@ public class FileSystem {
      * @return
      */
     private boolean deallocAllBlocks(FileTableEntry ftEnt) {
+        if(ftEnt.count > 0)
+            return false;
+
+
         short iNumber = ftEnt.iNumber;
         if(directory.ifree(iNumber))
             return true;
