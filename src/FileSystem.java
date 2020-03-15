@@ -79,6 +79,10 @@ public class FileSystem {
     }
 
     public boolean delete(String filename) {
+        FileTableEntry ftEnt = open(filename, "w");
+        short iNumber = ftEnt.iNumber;
+        if(close(ftEnt) && directory.ifree(iNumber))
+            return true;
         return false;
     }
 
