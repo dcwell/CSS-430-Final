@@ -116,7 +116,7 @@ public class FileSystem {
                        //this is the location to read from
                        SysLib.rawread(blockNum, buf);
 
-                       int dataInto = ftEnt.seekPtr % Disk.blocksize;
+                       int dataInto = ftEnt.seekPtr % Disk.blockSize;
                        int remainingBlocks = Disk.blockSize - dataInto;
                        int remainingBytes = fsize(ftEnt) - ftEnt.seekPtr;
 
@@ -137,6 +137,7 @@ public class FileSystem {
                return trackDataRead;
            }
        }
+       return -1;
     }
 
     /**
