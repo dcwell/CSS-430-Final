@@ -1,17 +1,26 @@
 import java.util.*;
+/**
+ * @authors Denali Cornwell & Jayden Stipek
+ * Revised: 3/15/2020
+ * This class is the FileTable class that will represent an
+ */
 
 public class FileTable {
     private Vector<FileTableEntry> table;
     private Directory dir;
 
+    /**
+     * Constructor with a single Directory in order to instalize it
+     * @param directory
+     */
     public FileTable(Directory directory) {
         table = new Vector();
         dir = directory;
     }
 
     /**
-     * @param fileName
-     * @param mode
+     * @param fileName name of the file
+     * @param mode the mode that the file should be in
      * @return
      */
 
