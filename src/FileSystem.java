@@ -25,8 +25,6 @@ public class FileSystem {
         close(dirEnt);
     }
 
-    }
-
     public void sync() {
         superblock.sync();
     }
@@ -52,14 +50,12 @@ public class FileSystem {
             }
             return true;
         }
-        return false;
     }
 
     public int fsize(FileTableEntry ftEnt) {
         synchronized (ftEnt) {
             return ftEnt.inode.length;
         }
-        return -1;
     }
 
     public int read(FileTableEntry ftEnt, byte[] buf) {
