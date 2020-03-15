@@ -90,11 +90,10 @@ public class FileSystem {
     public boolean close(FileTableEntry ftEnt) {
         synchronized (ftEnt) {
             ftEnt.count--;
-            if (ftEnt.count > 0) { // if someone is using it
-                return false;
+            if (ftEnt.count <= 0) { // if someone is using it
+                return filetable.ffree(ftEnt);
             }
-            return filetable.ffree(ftEnt);
-
+            return true;
         }
     }
 
@@ -120,13 +119,13 @@ public class FileSystem {
     public int read(FileTableEntry ftEnt, byte[] buf) {
         if (buf == null)
             return -1;
-        if (ftEnt.mode != "w" && ftEnt.mode != "a") {
+        if (ftEnt.mode == "w" || ftEnt.mode == "a")  return -1;
             int trackDataRead = 0;
             int size = buf.length;
             synchronized (ftEnt) {
                 //one stop when the seek pointer is still within rang
                 // and buff isnt full
-                while (buf.length > 0 && ftEnt.seekPtr < fsize(ftEnt)) {
+                while (size > 0 && ftEnt.seekPtr < fsize(ftEnt)) {
                     //get Block num
                     int blockNum = ftEnt.inode.findTargetBlock(ftEnt.seekPtr);
                     if (blockNum != -1) {
@@ -153,8 +152,6 @@ public class FileSystem {
                 }
                 return trackDataRead;
             }
-        }
-        return -1;
     }
 
     /**
