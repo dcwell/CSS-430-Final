@@ -1,3 +1,11 @@
+/**
+ * @authors Denali Cornwell & Jayden Stipek
+ * Revised: 3/13/2020
+ * This class is the Inode class that will represent an Inode in a Unix-Like file system.
+ * It will be able to store a finite amount of files, with finite sized names.
+ * Inodes go inside blocks and hold information in virtual memory that can be changed and manipulated from disk
+ */
+
 public class Inode {
     public static final int iNodeSize = 32;
     public static final int directSize = 11;

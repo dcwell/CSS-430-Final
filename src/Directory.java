@@ -2,7 +2,7 @@ import java.util.*;
 
 /**
  * @authors Denali Cornwell & Jayden Stipek
- *
+ * Revised: 3/13/2020
  * This class is the Directory class that will represent a directory in a Unix-Like file system.
  * It will be able to store a finite amount of files, with finite sized names. It will use 2 arrays, one to
  * be able to represent the legths of each filename, and one 2D array to be able to store the actual names themselves.

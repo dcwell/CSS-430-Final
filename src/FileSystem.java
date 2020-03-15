@@ -1,5 +1,6 @@
 /**
  * Code by: Denali Cornwell & Jayden Stipek
+ * Revised: March, 15th 2020.
  */
 public class FileSystem {
     //Super block to control all blocks and freelist
@@ -154,9 +155,12 @@ public class FileSystem {
     }
 
     /**
-     * @param ftEnt
-     * @param buf
-     * @return
+     * writes the contents of the buffer to the file
+     * indicated by fd -> starting at the position indicated by the seek pointer.
+     *
+     * @param ftEnt the FileTableEntry that we want to write the data into
+     * @param buf the buffer that has the data that needs to be rewritten
+     * @return the location of where it was written on disk
      */
     public int write(FileTableEntry ftEnt, byte[] buf) {
         //if nothing is to write

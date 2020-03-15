@@ -1,7 +1,10 @@
 import java.util.*;
 
 /**
- * Edits by Denali Cornwell & Jayden Stipek
+ * @Edits by Denali Cornwell & Jayden Stipek
+ * Revised: 3/10/2020
+ * This class is the SysLib class that will represent a system rawreading and writing in a Unix-Like file system.
+ * It uses the Kernels, calls in order to store the values properly
  */
 public class SysLib {
     public static int exec(String args[]) {

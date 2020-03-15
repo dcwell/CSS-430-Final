@@ -1,3 +1,14 @@
+
+/**
+ * @authors (revised document) Denali Cornwell & Jayden Stipek
+ * Revised: 3/15/2020
+ *
+ * This class is the Kernel class that will represent the kernel in a Unix-Like file system.
+ * It will be able to take the scheduler, disk, cache and filesystem and create a place for all of
+ * these to talk to eachother cohesivesly
+ */
+
+
 import java.util.*;
 import java.lang.reflect.*;
 import java.io.*;
