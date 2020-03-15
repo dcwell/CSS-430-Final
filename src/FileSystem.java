@@ -6,6 +6,7 @@ public class FileSystem {
     private final int SEEK_CUR = 1;
     private final int SEEK_END = 2;
 
+
     public FileSystem(int diskBlocks) {
         superblock = new SuperBlock(diskBlocks);
         directory = new Directory(superblock.inodeBlocks);
@@ -37,14 +38,29 @@ public class FileSystem {
     }
 
     public FileTableEntry open(String filename, String mode) {
-        return new FileTableEntry(new Inode(), (short) 0, "r");
+        FileTableEntry ftEnt = filetable.falloc(filename, mode);
+        if(mode.equals("w")) {
+            if(deallocAllBlocks(ftEnt) == false)
+                return null;
+        }
+        return ftEnt;
     }
 
     public boolean close(FileTableEntry ftEnt) {
+        synchronized (ftEnt) {
+            ftEnt.count--;
+            if(ftEnt.count == 1) {
+                return filetable.ffree(ftEnt);
+            }
+            return true;
+        }
         return false;
     }
 
     public int fsize(FileTableEntry ftEnt) {
+        synchronized (ftEnt) {
+            return ftEnt.inode.length;
+        }
         return -1;
     }
 
