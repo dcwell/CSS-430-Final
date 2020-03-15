@@ -56,7 +56,6 @@ public class FileSystem {
      */
     public boolean format(int files) {
         while (!filetable.fempty()) {
-            ; // wait
         }
 
         directory = new Directory(superblock.inodeBlocks);
@@ -119,39 +118,39 @@ public class FileSystem {
     public int read(FileTableEntry ftEnt, byte[] buf) {
         if (buf == null)
             return -1;
-        if (ftEnt.mode == "w" || ftEnt.mode == "a")  return -1;
-            int trackDataRead = 0;
-            int size = buf.length;
-            synchronized (ftEnt) {
-                //one stop when the seek pointer is still within rang
-                // and buff isnt full
-                while (size > 0 && ftEnt.seekPtr < fsize(ftEnt)) {
-                    //get Block num
-                    int blockNum = ftEnt.inode.findTargetBlock(ftEnt.seekPtr);
-                    if (blockNum != -1) {
-                        byte[] tempRead = new byte[Disk.blockSize];
-                        //this is the location to read from
-                        SysLib.rawread(blockNum, tempRead);
+        if (ftEnt.mode == "w" || ftEnt.mode == "a") return -1;
+        int trackDataRead = 0;
+        int size = buf.length;
+        synchronized (ftEnt) {
+            //one stop when the seek pointer is still within rang
+            // and buff isnt full
+            while (size > 0 && ftEnt.seekPtr < fsize(ftEnt)) {
+                //get Block num
+                int blockNum = ftEnt.inode.findTargetBlock(ftEnt.seekPtr);
+                if (blockNum != -1) {
+                    byte[] tempRead = new byte[Disk.blockSize];
+                    //this is the location to read from
+                    SysLib.rawread(blockNum, tempRead);
 
-                        int dataInto = ftEnt.seekPtr % Disk.blockSize;
-                        int remainingBlocks = Disk.blockSize - dataInto;
-                        int remainingBytes = fsize(ftEnt) - ftEnt.seekPtr;
+                    int dataInto = ftEnt.seekPtr % Disk.blockSize;
+                    int remainingBlocks = Disk.blockSize - dataInto;
+                    int remainingBytes = fsize(ftEnt) - ftEnt.seekPtr;
 
-                        int leftToRead = Math.min(Math.min(remainingBlocks, size), remainingBytes);
-                        System.arraycopy(tempRead, dataInto, buf, trackDataRead, leftToRead);
-                        //update the variable to read into the byte array
-                        trackDataRead += leftToRead;
-                        //Update The Seek Pointer
-                        ftEnt.seekPtr += leftToRead;
-                        //Update the size
-                        size -= leftToRead;
-                    } else {
-                        //wrong block locations
-                        break;
-                    }
+                    int leftToRead = Math.min(Math.min(remainingBlocks, size), remainingBytes);
+                    System.arraycopy(tempRead, dataInto, buf, trackDataRead, leftToRead);
+                    //update the variable to read into the byte array
+                    trackDataRead += leftToRead;
+                    //Update The Seek Pointer
+                    ftEnt.seekPtr += leftToRead;
+                    //Update the size
+                    size -= leftToRead;
+                } else {
+                    //wrong block locations
+                    break;
                 }
-                return trackDataRead;
             }
+            return trackDataRead;
+        }
     }
 
     /**
@@ -185,11 +184,10 @@ public class FileSystem {
                         if (ftEnt.inode.registerTargetBlock(ftEnt.seekPtr, freeBlock) != 0)
                             return -1;
                         //if we do not succeed on updating the seek ptr
-                    } else if (result == 0)
-                        blockNum = freeBlock;
-                        //the direct ptr is bad
-                    else if (result == -1 || result == -2)
+                    } else if (result == -1 || result == -2)
                         return -1;
+                    else
+                        blockNum = freeBlock;
                 }
                 byte[] tempRead = new byte[Disk.blockSize];
                 //this is the location to read from what it is pointing to
@@ -269,16 +267,16 @@ public class FileSystem {
      */
     public int seek(FileTableEntry ftEnt, int offset, int whence) {
         synchronized (ftEnt) {
-            if(ftEnt == null) return -1;
+            if (ftEnt == null) return -1;
 
             if (whence == SEEK_SET) {
-                if(offset <= fsize(ftEnt) && offset >=0)
+                if (offset <= fsize(ftEnt) && offset >= 0)
                     ftEnt.seekPtr = offset;
             } else if (whence == SEEK_CUR) {
-                if(ftEnt.seekPtr + offset <= fsize(ftEnt) && ((ftEnt.seekPtr + offset) >= 0))
+                if (ftEnt.seekPtr + offset <= fsize(ftEnt) && ((ftEnt.seekPtr + offset) >= 0))
                     ftEnt.seekPtr += offset;
             } else if (whence == SEEK_END) {
-                if(fsize(ftEnt) + offset >= 0 && fsize(ftEnt) + offset <= fsize(ftEnt))
+                if (fsize(ftEnt) + offset >= 0 && fsize(ftEnt) + offset <= fsize(ftEnt))
                     ftEnt.seekPtr = ftEnt.inode.length + offset;
                 else
                     return -1;
