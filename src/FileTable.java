@@ -73,6 +73,11 @@ public class FileTable {
 
 
     public synchronized boolean ffree(FileTableEntry entry) {
+        entry.inode.toDisk(entry.iNumber);
+        if(table.removeElement(entry)) {
+            notify();
+            return true;
+        }
         return false;
     }
 
