@@ -24,7 +24,13 @@ public class FileSystem {
         close(dirEnt);
     }
 
-    public void sync() { }
+    public void sync() {
+        FileTableEntry dirEnt = open("/","r");
+        byte[] data = directory.directory2bytes();
+        write(dirEnt,data);
+        close(dirEnt);
+        superblock.sync();
+    }
 
     public boolean format(int files) {
         return false;
@@ -57,6 +63,10 @@ public class FileSystem {
     public boolean delete(String filename) {
         return false;
     }
+
+    private final int SEEK_SET = 0;
+    private final int SEEK_CUR = 1;
+    private final int SEEK_END = 2;
 
     public int seek(FileTableEntry ftEnt, int offset, int whence) {
         return -1;
