@@ -19,9 +19,11 @@ public class FileTable {
     }
 
     /**
+     * allocates a file to the disk
+     *
      * @param fileName name of the file
      * @param mode the mode that the file should be in
-     * @return
+     * @return the FileTableEntry
      */
 
     public synchronized FileTableEntry falloc(String fileName, String mode) {

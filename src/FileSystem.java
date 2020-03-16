@@ -1,6 +1,7 @@
 /**
- * Code by: Denali Cornwell & Jayden Stipek
- * Revised: March, 15th 2020.
+ * @authors Denali Cornwell & Jayden Stipek
+ * Revised: March,15 2020
+ * This class is the FileSystem class that will represent the FileSystem in a Unix-Like file system.
  */
 public class FileSystem {
     //Super block to control all blocks and freelist
@@ -117,7 +118,7 @@ public class FileSystem {
      * @return failure status or amount of data read.
      */
     public int read(FileTableEntry ftEnt, byte[] buf) {
-        if (buf == null)
+        if (buf == null || ftEnt == null)
             return -1;
         if (ftEnt.mode == "w" || ftEnt.mode == "a") return -1;
         int trackDataRead = 0;
