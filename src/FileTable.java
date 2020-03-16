@@ -4,7 +4,6 @@ import java.util.*;
  * Revised: 3/15/2020
  * This class is the FileTable class that will represent an
  */
-
 public class FileTable {
     private Vector<FileTableEntry> table;
     private Directory dir;
@@ -25,7 +24,6 @@ public class FileTable {
      * @param mode the mode that the file should be in
      * @return the FileTableEntry
      */
-
     public synchronized FileTableEntry falloc(String fileName, String mode) {
         //need to set these up to eventually make a FileTableEntry with.
         Inode theINode = null;
@@ -107,6 +105,11 @@ public class FileTable {
         return false;
     }
 
+    /**
+     * Simply returns if the Vector of FileTableEntries is empty or not.
+     *
+     * @return True if empty, false if not.
+     */
     public synchronized boolean fempty() {
         return table.isEmpty();
     }
