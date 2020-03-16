@@ -30,8 +30,8 @@ public class SuperBlock {
         inodeBlocks = SysLib.bytes2int(superBlock,4);
         freeList = SysLib.bytes2int(superBlock, 8 );
 
+        //disk contents are valid
         if(totalBlocks == diskSize && inodeBlocks > 0 && freeList >= 2)
-            //disk contents are valid
             return;
         else {
             //need to format disk
@@ -55,8 +55,7 @@ public class SuperBlock {
     /**
      * Uses format(int nodes) for simplicity.
      */
-    public void format() {
-        format(defaultInodeBlocks); //already written why write it again
+    public void format() { format(defaultInodeBlocks);//already written why write it again
     }
 
     /**
@@ -66,14 +65,21 @@ public class SuperBlock {
      * @param nodes The amount of blocks to be formatted and Inodes to make.
      */
     public void format(int nodes) {
+        inodeBlocks = nodes;
         //SysLib.cout("\n*************** EXECUTING FORMAT ****************\n");
-        for(short i = 0; i < nodes; i++) {
+        for(short i = 0; i < inodeBlocks; i++) {
             Inode blankNode = new Inode();
+            blankNode.flag = 0;
             blankNode.toDisk(i);
         }
+        freeList = 2 + inodeBlocks * 32 / Disk.blockSize;
 
         for(int i = freeList; i < nodes; i++) {
             byte[] blankData = new byte[Disk.blockSize];
+
+            for(int j = 0; j < Disk.blockSize; j++)
+                blankData[j] = 0;
+
             SysLib.int2bytes(i + 1, blankData, 0);
             SysLib.rawwrite(i, blankData);
         }
